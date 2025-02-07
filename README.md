@@ -1,4 +1,4 @@
-![Pikachu](https://github.com/F-Fleron-G/pokemon_deck_creator/blob/main/pokemon-battle-image.jpg?raw=true)
+![Pikachu](https://github.com/F-Fleron-G/Pokemon_Deck_Creator/blob/main/images/pokemon-battle-image.jpg?raw=true)
 
 # Pokémon Deck Creator
 
