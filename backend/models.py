@@ -33,10 +33,10 @@ class Pokemon(Base):
     speed = Column(Integer, default=0)  # ✅ NEW: Store Speed
 
     # ✅ Add TCG Attributes
-    tcg_id = Column(String, nullable=True)  # Card ID
-    tcg_image_url = Column(String, nullable=True)  # Image URL
-    tcg_set = Column(String, nullable=True)  # Set Name
-    tcg_rarity = Column(String, nullable=True)  # Rarity
+    tcg_id = Column(String, nullable=True)
+    tcg_image_url = Column(String, nullable=True)
+    tcg_set = Column(String, nullable=True)
+    tcg_rarity = Column(String, nullable=True)
 
 
 # ✅ Deck Model (User's Pokémon Deck)
@@ -48,6 +48,9 @@ class Deck(Base):
     user = relationship("User", back_populates="decks")
     deck_pokemon = relationship("DeckPokemon", back_populates="deck", cascade="all, delete")
 
+    deck_trainer = relationship("DeckTrainer", back_populates="deck", cascade="all, delete")
+    deck_energy = relationship("DeckEnergy", back_populates="deck", cascade="all, delete")
+
 
 # ✅ Deck-Pokemon Model (Link Between Decks and Pokémon)
 class DeckPokemon(Base):
@@ -57,3 +60,61 @@ class DeckPokemon(Base):
     pokemon_id = Column(Integer, ForeignKey("pokemon.id"))
 
     deck = relationship("Deck", back_populates="deck_pokemon")
+
+
+class Trainer(Base):
+    __tablename__ = "trainers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    tcg_id = Column(String, nullable=True)
+    tcg_image_url = Column(String, nullable=True)
+    tcg_set = Column(String, nullable=True)
+    tcg_rarity = Column(String, nullable=True)
+    effect = Column(String, nullable=True)  # Simple text or short description
+
+    # Relationship to DeckTrainer (the junction table)
+    deck_trainer = relationship("DeckTrainer", back_populates="trainer", cascade="all, delete")
+
+
+class Energy(Base):
+    __tablename__ = "energy"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    tcg_id = Column(String, nullable=True)
+    tcg_image_url = Column(String, nullable=True)
+    tcg_set = Column(String, nullable=True)
+    tcg_rarity = Column(String, nullable=True)
+    energy_type = Column(String, nullable=True)
+
+    # Relationship to DeckEnergy (the junction table)
+    deck_energy = relationship("DeckEnergy", back_populates="energy", cascade="all, delete")
+
+
+class DeckTrainer(Base):
+    __tablename__ = "deck_trainers"
+
+    id = Column(Integer, primary_key=True, index=True)
+    deck_id = Column(Integer, ForeignKey("decks.id", ondelete="CASCADE"))
+    trainer_id = Column(Integer, ForeignKey("trainers.id", ondelete="CASCADE"))
+
+    # Relationship to Deck
+    deck = relationship("Deck", back_populates="deck_trainer")
+
+    # Relationship to Trainer
+    trainer = relationship("Trainer", back_populates="deck_trainer")
+
+
+class DeckEnergy(Base):
+    __tablename__ = "deck_energy"
+
+    id = Column(Integer, primary_key=True, index=True)
+    deck_id = Column(Integer, ForeignKey("decks.id", ondelete="CASCADE"))
+    energy_id = Column(Integer, ForeignKey("energy.id", ondelete="CASCADE"))
+
+    # Relationship to Deck
+    deck = relationship("Deck", back_populates="deck_energy")
+
+    # Relationship to Energy
+    energy = relationship("Energy", back_populates="deck_energy")

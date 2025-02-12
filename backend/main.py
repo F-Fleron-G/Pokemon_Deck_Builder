@@ -4,6 +4,7 @@ import models  # ✅ Ensure models are imported
 from database import Base, engine  # ✅ Import engine to bind models
 from auth import router as auth_router
 from deck_routes import router as deck_router  # ✅ Import deck routes
+from tcg_routes import router as tcg_router
 
 # ✅ Initialize FastAPI App
 app = FastAPI()
@@ -30,6 +31,7 @@ app.add_middleware(
 # ✅ Register Routes
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 app.include_router(deck_router, prefix="/user", tags=["Deck Management"])  # ✅ Include deck routes
+app.include_router(tcg_router, prefix="/tcg", tags=["TCG"])
 
 
 # ✅ Root Endpoint

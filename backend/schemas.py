@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, constr
-from typing import List
+from typing import List, Optional
 
 
 # ✅ User Signup Schema
@@ -29,3 +29,53 @@ class DeckUpdate(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# -- Trainer Schemas --
+class TrainerBase(BaseModel):
+    name: str
+    tcg_id: Optional[str] = None
+    tcg_image_url: Optional[str] = None
+    tcg_set: Optional[str] = None
+    tcg_rarity: Optional[str] = None
+    effect: Optional[str] = None
+
+
+class TrainerCreate(TrainerBase):
+    pass  # If identical to TrainerBase
+
+
+class TrainerUpdate(TrainerBase):
+    pass  # Could override if partial updates differ
+
+
+class TrainerOut(TrainerBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+# -- Energy Schemas --
+class EnergyBase(BaseModel):
+    name: str
+    tcg_id: Optional[str] = None
+    tcg_image_url: Optional[str] = None
+    tcg_set: Optional[str] = None
+    tcg_rarity: Optional[str] = None
+    energy_type: Optional[str] = None
+
+
+class EnergyCreate(EnergyBase):
+    pass
+
+
+class EnergyUpdate(EnergyBase):
+    pass
+
+
+class EnergyOut(EnergyBase):
+    id: int
+
+    class Config:
+        orm_mode = True

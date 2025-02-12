@@ -111,7 +111,6 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db), token: str
             db.commit()
             db.refresh(new_pokemon)
 
-        # Now that the Pokémon exists, add it to the deck
         new_entry = DeckPokemon(deck_id=user_deck.id, pokemon_id=pokemon_data["id"])
         db.add(new_entry)
 
@@ -134,7 +133,7 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db), token: str
             "tcg_rarity": tcg_card.get("tcg_rarity")
         })
 
-    db.commit()  # Commit all changes
+    db.commit()
 
     return {"message": "Deck updated successfully", "added_pokemon": added_pokemon}
 
