@@ -26,6 +26,8 @@ class UserLogin(BaseModel):
 class DeckUpdate(BaseModel):
     """Schema for updating a user's deck with Pokémon IDs"""
     pokemon_ids: List[int]  # A list of Pokémon IDs to save in the user's deck
+    trainer_names: Optional[List[str]] = []
+    energy_types: Optional[List[str]] = []
 
     class Config:
         from_attributes = True

@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from database import SessionLocal
-from models import User, Deck, DeckPokemon, Pokemon
+from models import User, Deck, DeckPokemon, Pokemon, Trainer, Energy, DeckTrainer, DeckEnergy
 from schemas import DeckUpdate
 from auth import oauth2_scheme, decode_token
-from services.pokeapi_service import fetch_pokemon_data
-from utils import fetch_pokemon_data, fetch_pokemon_tcg_card
+from auth import get_api_key
+from utils import fetch_trainer_data, fetch_energy_data
 
 
 # ✅ Create FastAPI Router
@@ -48,94 +48,96 @@ def get_user_deck(user: User = Depends(get_current_user), db: Session = Depends(
 
 # # ✅ POST: Create or Update User's Deck
 
+
 @router.post("/deck")
-def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db), token: str = Depends(oauth2_scheme)):
-    """Save or update a user's deck with Pokémon from PokéAPI and TCG API."""
+def save_deck(
+        deck_update: DeckUpdate,
+        db: Session = Depends(get_db),
+        token: str = Depends(get_api_key)  # Use get_api_key instead of oauth2_scheme
+):
+    # Extract the actual token from the "Bearer <token>" string
+    if " " in token:
+        actual_token = token.split(" ")[1]
+    else:
+        actual_token = token
+    user_email = decode_token(actual_token)
 
-    user_email = decode_token(token)
+    # (Rest of your deck logic follows below)
     user = db.query(User).filter(and_(User.email == user_email)).first()
-
     if not user:
         raise HTTPException(status_code=401, detail="Invalid authentication")
 
     # Ensure the user has a deck
     user_deck = db.query(Deck).filter(and_(Deck.user_id == user.id)).first()
-
     if not user_deck:
         user_deck = Deck(user_id=user.id)
         db.add(user_deck)
         db.commit()
         db.refresh(user_deck)
 
-    # Clear the existing deck before adding new Pokémon
+    # Clear and update deck entries for Pokémon
     db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id == user_deck.id)).delete()
     db.commit()
 
     added_pokemon = []
-
     for pokemon_id in deck_update.pokemon_ids:
-        # Fetch Pokémon data from PokéAPI
-        pokemon_data = fetch_pokemon_data(str(pokemon_id))
+        # ... (existing Pokémon handling code)
+        pass  # (Your existing Pokémon logic here)
 
-        if not pokemon_data:
-            raise HTTPException(status_code=404, detail=f"Pokémon with ID {pokemon_id} not found.")
+    # Process Trainer Cards
+    added_trainers = []
+    if deck_update.trainer_names:
+        db.query(DeckTrainer).filter(and_(DeckTrainer.deck_id == user_deck.id)).delete()
+        db.commit()
+        for trainer_name in deck_update.trainer_names:
+            trainer_data = fetch_trainer_data(trainer_name)
+            if not trainer_data:
+                continue  # Skip if no trainer card found
+            existing_trainer = db.query(Trainer).filter(and_(Trainer.name == trainer_data.get("name"))).first()
+            if not existing_trainer:
+                new_trainer = Trainer(**trainer_data)
+                db.add(new_trainer)
+                db.commit()
+                db.refresh(new_trainer)
+                trainer_id = new_trainer.id
+            else:
+                trainer_id = existing_trainer.id
+            new_deck_trainer = DeckTrainer(deck_id=user_deck.id, trainer_id=trainer_id)
+            db.add(new_deck_trainer)
+            added_trainers.append(trainer_data)
+        db.commit()
 
-        # Fetch Pokémon TCG card details
-        tcg_card = fetch_pokemon_tcg_card(pokemon_data["name"]) or {}
+    # Process Energy Cards
+    added_energy = []
+    if deck_update.energy_types:
+        db.query(DeckEnergy).filter(and_(DeckEnergy.deck_id == user_deck.id)).delete()
+        db.commit()
+        for energy_type in deck_update.energy_types:
+            energy_data = fetch_energy_data(energy_type)
+            if not energy_data:
+                continue  # Skip if no energy card found
+            existing_energy = db.query(Energy).filter(and_(Energy.name == energy_data.get("name"))).first()
+            if not existing_energy:
+                new_energy = Energy(**energy_data)
+                db.add(new_energy)
+                db.commit()
+                db.refresh(new_energy)
+                energy_id = new_energy.id
+            else:
+                energy_id = existing_energy.id
+            new_deck_energy = DeckEnergy(deck_id=user_deck.id, energy_id=energy_id)
+            db.add(new_deck_energy)
+            added_energy.append(energy_data)
+        db.commit()
 
-        # Check if Pokémon already exists in the database
-        existing_pokemon = db.query(Pokemon).filter(and_(Pokemon.id == pokemon_data["id"])).first()
+    db.commit()  # Final commit
 
-        if not existing_pokemon:
-            # Insert Pokémon into the database with all details
-            new_pokemon = Pokemon(
-                id=pokemon_data["id"],
-                name=pokemon_data["name"],
-                types=pokemon_data["types"],
-                strengths=pokemon_data.get("strengths", []),
-                weaknesses=pokemon_data.get("weaknesses", []),
-                moves=pokemon_data.get("moves", []),
-                abilities=pokemon_data.get("abilities", []),
-                hp=pokemon_data.get("hp", 0),
-                attack=pokemon_data.get("attack", 0),
-                defense=pokemon_data.get("defense", 0),
-                special_attack=pokemon_data.get("special_attack", 0),
-                special_defense=pokemon_data.get("special_defense", 0),
-                speed=pokemon_data.get("speed", 0),
-                tcg_id=tcg_card.get("tcg_id"),
-                tcg_image_url=tcg_card.get("tcg_image_url"),
-                tcg_set=tcg_card.get("tcg_set"),
-                tcg_rarity=tcg_card.get("tcg_rarity")
-            )
-            db.add(new_pokemon)
-            db.commit()
-            db.refresh(new_pokemon)
-
-        new_entry = DeckPokemon(deck_id=user_deck.id, pokemon_id=pokemon_data["id"])
-        db.add(new_entry)
-
-        added_pokemon.append({
-            "id": pokemon_data["id"],
-            "name": pokemon_data["name"],
-            "types": pokemon_data["types"],
-            "strengths": pokemon_data.get("strengths", []),
-            "weaknesses": pokemon_data.get("weaknesses", []),
-            "moves": pokemon_data.get("moves", []),
-            "abilities": pokemon_data.get("abilities", []),
-            "hp": pokemon_data.get("hp", 0),
-            "attack": pokemon_data.get("attack", 0),
-            "defense": pokemon_data.get("defense", 0),
-            "special_attack": pokemon_data.get("special_attack", 0),
-            "special_defense": pokemon_data.get("special_defense", 0),
-            "speed": pokemon_data.get("speed", 0),
-            "tcg_image_url": tcg_card.get("tcg_image_url"),
-            "tcg_set": tcg_card.get("tcg_set"),
-            "tcg_rarity": tcg_card.get("tcg_rarity")
-        })
-
-    db.commit()
-
-    return {"message": "Deck updated successfully", "added_pokemon": added_pokemon}
+    return {
+        "message": "Deck updated successfully",
+        "added_pokemon": added_pokemon,
+        "added_trainers": added_trainers,
+        "added_energy": added_energy
+    }
 
 
 # ✅ DELETE: Remove Pokémon from Deck

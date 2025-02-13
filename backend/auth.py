@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Security
 from sqlalchemy.orm import Session
 from database import SessionLocal, engine, Base
 from models import User
@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 import jwt
 import os
 from datetime import datetime, timedelta, timezone
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 
 # ✅ Ensure tables are created before running API
 Base.metadata.create_all(engine)
@@ -20,8 +20,18 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 # ✅ Password Hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ✅ OAuth2 Token Scheme
+# ✅ OAuth2 Token Scheme (still available if needed)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+# ✅ New API Key Header Dependency for direct token input in Swagger
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+
+
+def get_api_key(api_key: str = Security(api_key_header)):
+    if not api_key or not api_key.startswith("Bearer "):
+        raise HTTPException(status_code=403, detail="Not authenticated")
+    return api_key  # Returns the full "Bearer <token>" string
+
 
 # ✅ FastAPI Router
 router = APIRouter()
