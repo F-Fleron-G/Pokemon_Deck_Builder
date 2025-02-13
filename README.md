@@ -1,8 +1,10 @@
-![Pikachu](https://github.com/F-Fleron-G/Pokemon_Deck_Creator/blob/main/images/pokemon-battle-image.jpg?raw=true)
+![Pikachu](https://github.com/F-Fleron-G/Pokemon_Deck_Builder/blob/main/images/pokemon-battle-image.jpg?raw=true)
 
-# Pokémon Deck Creator
+# Pokémon Deck Builder
 
-Welcome to the **Pokémon Deck Creator**, a FastAPI-based application that helps kids build Pokémon decks for battles! This project uses PostgreSQL to store user accounts, Pokémon data, and user decks, including data fetched from the PokéAPI and the Pokémon TCG API.
+Welcome to the **Pokémon Deck Builder**, a FastAPI-based application that helps kids build and optimize their Pokémon 
+battle decks! This project uses PostgreSQL to store user accounts, Pokémon data, and user decks—including data fetched
+from both the PokéAPI and the Pokémon TCG API.
 
 ---
 
@@ -11,10 +13,12 @@ Welcome to the **Pokémon Deck Creator**, a FastAPI-based application that helps
 - **Pokémon Data**: Retrieves detailed Pokémon stats, types, strengths, weaknesses, moves, and TCG card images.
 - **Build & Manage Decks**: 
   - Sign up / Log in (JWT Authentication).
-  - Create and update your own Pokémon decks.
-  - Store Pokémon info (including TCG data) in a PostgreSQL database.
-- **TCG Integration**: Fetch and store card images, set name, and rarity from the Pokémon TCG API.
-- **Strengths & Weaknesses**: Dynamically computed from Pokémon type(s).
+  - Create and update decks that include not only Pokémon but also Trainer and Energy cards. 
+  - Deck update requests now accept lists of Pokémon IDs, Trainer names, and Energy types.
+- **TCG Integration**: Automatically fetch and store card images, set names, and rarity for Pokémon, Trainers, 
+    and Energy cards from the Pokémon TCG API.
+- **Future Synergy & Scoring**: A planned algorithm will evaluate deck balance by considering Pokémon stats,
+    Trainer card effects, and Energy matching.
 
 ---
 
@@ -39,8 +43,8 @@ Welcome to the **Pokémon Deck Creator**, a FastAPI-based application that helps
 ### Step 1: Clone the Repository
 
 ```bash
-git clone https://github.com/F-Fleron-G/Pokemon_Deck_Creator.git
-cd Pokemon_Deck_Creator
+git clone https://github.com/F-Fleron-G/Pokemon_Deck_Builder.git
+cd Pokemon_Deck_Builder
 ```
 
 ### Step 2: Create a Virtual Environment
@@ -58,7 +62,7 @@ pip install -r requirements.txt
 ### Step 4: Set Up Environment Variables
 Create a .env file in the root folder with the following content:
 ```env
-DATABASE_URL=postgresql://postgres:<YOUR_DB_PASSWORD>@localhost/pokemon_deck_creator
+DATABASE_URL=postgresql://postgres:<YOUR_DB_PASSWORD>@localhost/pokemon_deck_builder
 SECRET_KEY=<YOUR_SECRET_KEY>
 ```
 Replace <YOUR_DB_PASSWORD> with your actual password.
@@ -83,15 +87,26 @@ Authentication (JWT-based):
 Deck Management (Requires JWT):
 
 - GET /user/deck - Retrieve the current user’s deck.
-- POST /user/deck - Create or update the user’s deck with a list of Pokémon IDs.
+- POST /user/deck - Create or update the user’s deck.
+  Request Payload Example:
+```json
+{
+  "pokemon_ids": [1, 4, 7],
+  "trainer_names": ["Tropical Wind", "Pokémon Fan Club"],
+  "energy_types": ["Fire", "Water"]
+}
+```
 - DELETE /user/deck/{pokemon_id} - Remove a specific Pokémon from the user’s deck.
 
 ---
 
 ## Future Enhancements
-- Energy & Trainer Cards: Implement additional tables for Energy and Trainer cards if building a complete TCG deck.
-- Deck Recommendations: Suggest Pokémon based on synergy or coverage of types.
-- Front-End Integration: Add a React or Vue.js front end for a more interactive experience.
+- Deck Synergy & Scoring: Implement an algorithm to evaluate deck balance and offer suggestions for improvement based on Pokémon stats,
+  Trainer effects, and Energy matching.
+- Advanced TCG Data: Expand functionality to include more detailed card data and improve filtering based on card 
+  effects.
+- Front-End Integration: Develop a React or Vue.js front end to provide an interactive user experience, tailored 
+  for kids (8–12 years old) and Pokémon enthusiasts.
 - Deployment: Host the application on a platform like Render, AWS, or PythonAnywhere.
 
 ---
@@ -105,4 +120,4 @@ Deck Management (Requires JWT):
 ---
 
 ## License
-This project is licensed under the MIT License. See the LICENSE
+This project is licensed under the MIT License. See the LICENSE file for details.
