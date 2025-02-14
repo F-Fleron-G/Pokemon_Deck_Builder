@@ -15,9 +15,9 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Pokémon Deck Creator API",
+        title="Pokémon Deck Builder API",
         version="1.0.0",
-        description="API for Pokémon Deck Creator",
+        description="API for Pokémon Deck Builder",
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
@@ -62,4 +62,4 @@ app.include_router(tcg_router, prefix="/tcg", tags=["TCG"])
 # ✅ Root Endpoint
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Pokémon Deck Creator!"}
+    return {"message": "Welcome to the Pokémon Deck Builder!"}

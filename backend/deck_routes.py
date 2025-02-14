@@ -2,11 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from database import SessionLocal
-from models import User, Deck, DeckPokemon, Pokemon, Trainer, Energy, DeckTrainer, DeckEnergy
+from models import (User, Deck, DeckPokemon, Pokemon, Trainer, Energy,
+                    DeckTrainer, DeckEnergy)
 from schemas import DeckUpdate
 from auth import oauth2_scheme, decode_token
 from auth import get_api_key
 from utils import fetch_trainer_data, fetch_energy_data
+from synergy import calculate_deck_score
+from recommendations import generate_recommendations
 
 
 # ✅ Create FastAPI Router
@@ -23,7 +26,8 @@ def get_db():
 
 
 # ✅ Get the Current User
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme),
+                     db: Session = Depends(get_db)):
     user_email = decode_token(token)
     user = db.query(User).filter(and_(User.email == user_email)).first()
 
@@ -34,14 +38,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
 # ✅ GET: Retrieve User's Deck
 @router.get("/deck")
-def get_user_deck(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_user_deck(user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
     user_deck = db.query(Deck).filter(and_(Deck.user_id == user.id)).first()
 
     if not user_deck:
         return {"message": "No deck found. Create one!"}
 
-    deck_entries = db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id == user_deck.id)).all()
-    pokemon_list = [db.query(Pokemon).filter(and_(Pokemon.id == entry.pokemon_id)).first() for entry in deck_entries]
+    deck_entries = db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id
+                                                     == user_deck.id)).all()
+    pokemon_list = [db.query(Pokemon).filter(and_(Pokemon.id
+                                                  == entry.pokemon_id)).first() for entry in deck_entries]
 
     return {"deck": [{"id": p.id, "name": p.name} for p in pokemon_list]}
 
@@ -76,24 +83,24 @@ def save_deck(
         db.refresh(user_deck)
 
     # Clear and update deck entries for Pokémon
-    db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id == user_deck.id)).delete()
+    db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id
+                                      == user_deck.id)).delete()
     db.commit()
 
-    added_pokemon = []
-    for pokemon_id in deck_update.pokemon_ids:
-        # ... (existing Pokémon handling code)
-        pass  # (Your existing Pokémon logic here)
+    added_pokemon = [{"id": pid} for pid in deck_update.pokemon_ids]
 
     # Process Trainer Cards
     added_trainers = []
     if deck_update.trainer_names:
-        db.query(DeckTrainer).filter(and_(DeckTrainer.deck_id == user_deck.id)).delete()
+        db.query(DeckTrainer).filter(and_(DeckTrainer.deck_id
+                                          == user_deck.id)).delete()
         db.commit()
         for trainer_name in deck_update.trainer_names:
             trainer_data = fetch_trainer_data(trainer_name)
             if not trainer_data:
                 continue  # Skip if no trainer card found
-            existing_trainer = db.query(Trainer).filter(and_(Trainer.name == trainer_data.get("name"))).first()
+            existing_trainer = db.query(Trainer).filter(and_(Trainer.name
+                                                             == trainer_data.get("name"))).first()
             if not existing_trainer:
                 new_trainer = Trainer(**trainer_data)
                 db.add(new_trainer)
@@ -116,7 +123,8 @@ def save_deck(
             energy_data = fetch_energy_data(energy_type)
             if not energy_data:
                 continue  # Skip if no energy card found
-            existing_energy = db.query(Energy).filter(and_(Energy.name == energy_data.get("name"))).first()
+            existing_energy = db.query(Energy).filter(and_(Energy.name
+                                                           == energy_data.get("name"))).first()
             if not existing_energy:
                 new_energy = Energy(**energy_data)
                 db.add(new_energy)
@@ -132,17 +140,25 @@ def save_deck(
 
     db.commit()  # Final commit
 
+    deck_score = calculate_deck_score(added_pokemon, added_trainers, added_energy)
+
+    recommendations = generate_recommendations(added_pokemon, added_trainers,
+                                               added_energy)
+
     return {
         "message": "Deck updated successfully",
         "added_pokemon": added_pokemon,
         "added_trainers": added_trainers,
-        "added_energy": added_energy
+        "added_energy": added_energy,
+        "deck_score": deck_score,
+        "recommendations": recommendations
     }
 
 
 # ✅ DELETE: Remove Pokémon from Deck
 @router.delete("/deck/{pokemon_id}")
-def remove_from_deck(pokemon_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def remove_from_deck(pokemon_id: int, user: User = Depends(get_current_user),
+                     db: Session = Depends(get_db)):
     user_deck = db.query(Deck).filter(and_(Deck.user_id == user.id)).first()
 
     if not user_deck:
