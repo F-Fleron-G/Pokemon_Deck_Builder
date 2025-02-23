@@ -9,10 +9,10 @@ from tcg_routes import router as tcg_router
 
 """
     Main entry point for the Pokémon Deck Builder API.
-    
-    This file sets up the FastAPI application, configures CORS and OpenAPI (Swagger) documentation,
-    initializes the database tables, and includes all the necessary routers for authentication,
-    deck management, and TCG data.
+
+    This file sets up the FastAPI application, configures CORS and OpenAPI (Swagger)
+    documentation, initializes the database tables, and includes all the necessary
+    routers for authentication, deck management, and TCG data.
 """
 
 app = FastAPI()
@@ -21,12 +21,11 @@ app = FastAPI()
 def custom_openapi():
     """
        Generates a custom OpenAPI schema for the application.
-       This function adds security schemes for the API key authentication and updates
+       This function adds a Bearer security scheme for JWT authentication and updates
        the default schema provided by FastAPI.
        Returns:
            dict: The custom OpenAPI schema.
     """
-
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
@@ -36,13 +35,13 @@ def custom_openapi():
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
-        "APIKeyHeader": {
-            "type": "apiKey",
-            "in": "header",
-            "name": "Authorization"
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT"
         }
     }
-    openapi_schema["security"] = [{"APIKeyHeader": []}]
+    openapi_schema["security"] = [{"BearerAuth": []}]
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
@@ -56,7 +55,6 @@ def setup_database():
         This function ensures that the database schema is in place before the
         application starts handling requests.
     """
-
     print("Ensuring database tables exist...")
     Base.metadata.create_all(bind=engine)
     print("Tables created successfully!")
@@ -64,7 +62,6 @@ def setup_database():
 
 setup_database()
 
-# noinspection PyTypeChecker
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -85,5 +82,4 @@ def read_root():
        Returns:
            dict: A dictionary containing a welcome message.
     """
-
     return {"message": "Welcome to the Pokémon Deck Builder!"}

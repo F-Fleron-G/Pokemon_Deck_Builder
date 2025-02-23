@@ -173,7 +173,8 @@ def get_external_trainers(trainer_name: str = ""):
     url = f"{TCG_API_URL}?q={query}&pageSize=100"
     response = requests.get(url, headers=TCG_API_HEADERS)
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Error fetching trainer data.")
+        raise HTTPException(status_code=response.status_code,
+                            detail="Error fetching trainer data.")
     data = response.json()
     if "data" not in data or not data["data"]:
         raise HTTPException(status_code=404, detail="No trainer cards found.")
@@ -318,7 +319,8 @@ def get_external_energy(energy_type: str = ""):
     url = f"{TCG_API_URL}?q={query}&pageSize=100"
     response = requests.get(url, headers=TCG_API_HEADERS)
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Error fetching energy data.")
+        raise HTTPException(status_code=response.status_code,
+                            detail="Error fetching energy data.")
     data = response.json()
     if "data" not in data or not data["data"]:
         raise HTTPException(status_code=404, detail="No energy cards found.")

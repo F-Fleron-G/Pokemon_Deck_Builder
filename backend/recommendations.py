@@ -4,20 +4,23 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import DeckPokemon, DeckTrainer, DeckEnergy, Pokemon, Trainer, Energy
 from type_matchups import type_chart
+from sqlalchemy import and_
 
 """
-    This module provides functions for generating deck recommendations based on the user's
-    deck composition. It analyzes strengths, weaknesses, and overall deck synergy to suggest
-    actionable improvements.
+    This module provides functions for generating deck recommendations based on
+    the user's deck composition. It analyzes strengths, weaknesses, and overall
+    deck synergy to suggest actionable improvements.
 """
 
 
 def generate_recommendations(user_deck, db):
     """
-       Generates a list of recommendations to improve the deck based on current composition.
-       This function queries the database to fetch Pokémon, Trainer, and Energy cards in the deck,
-       calculates the deck's synergy score, and identifies weaknesses. It then returns actionable
-       suggestions, such as adding or replacing cards.
+       Generates a list of recommendations to improve the deck based on
+       current composition.
+       This function queries the database to fetch Pokémon, Trainer, and
+       Energy cards in the deck, calculates the deck's synergy score, and
+       identifies weaknesses. It then returns actionable suggestions, such
+       as adding or replacing cards.
        Args:
            user_deck (Deck): The user's deck object.
            db (Session): The database session.
@@ -30,13 +33,19 @@ def generate_recommendations(user_deck, db):
 
     recommendations = []
 
-    pokemon_entries = db.query(DeckPokemon).filter(DeckPokemon.deck_id == user_deck.id).all()
-    trainer_entries = db.query(DeckTrainer).filter(DeckTrainer.deck_id == user_deck.id).all()
-    energy_entries = db.query(DeckEnergy).filter(DeckEnergy.deck_id == user_deck.id).all()
+    pokemon_entries = (db.query(DeckPokemon)
+                       .filter(and_(DeckPokemon.deck_id == user_deck.id)).all())
+    trainer_entries = (db.query(DeckTrainer)
+                       .filter(and_(DeckTrainer.deck_id == user_deck.id)).all())
+    energy_entries = (db.query(DeckEnergy)
+                      .filter(and_(DeckEnergy.deck_id == user_deck.id)).all())
 
-    pokemon_list = db.query(Pokemon).filter(Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])).all()
-    trainer_list = db.query(Trainer).filter(Trainer.id.in_([entry.trainer_id for entry in trainer_entries])).all()
-    energy_list = db.query(Energy).filter(Energy.id.in_([entry.energy_id for entry in energy_entries])).all()
+    pokemon_list = (db.query(Pokemon)
+                    .filter(Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])).all())
+    trainer_list = (db.query(Trainer)
+                    .filter(Trainer.id.in_([entry.trainer_id for entry in trainer_entries])).all())
+    energy_list = (db.query(Energy)
+                   .filter(Energy.id.in_([entry.energy_id for entry in energy_entries])).all())
 
     synergy_score = calculate_deck_score(pokemon_list, trainer_list, energy_list)
 
@@ -91,7 +100,8 @@ def fetch_pokemon_by_strength(weak_type):
     """
 
     strong_types = [
-        p_type for p_type, matchups in type_chart.items() if weak_type in matchups["strong_against"]
+        p_type for p_type, matchups in type_chart.items()
+        if weak_type in matchups["strong_against"]
     ]
 
     if not strong_types:

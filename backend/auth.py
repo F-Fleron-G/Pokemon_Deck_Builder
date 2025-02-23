@@ -1,5 +1,13 @@
+import bcrypt
+import types
+
+if not hasattr(bcrypt, "__about__"):
+    dummy = types.SimpleNamespace(__version__=getattr(bcrypt, "__version__", "3.2.0"))
+    bcrypt.__about__ = dummy
+
 from fastapi import APIRouter, Depends, HTTPException, Security
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 from database import SessionLocal, engine, Base
 from models import User
 from schemas import UserCreate, UserLogin
@@ -92,13 +100,15 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         Creates a JWT access token.
         Args:
             data (dict): The data to include in the token payload.
-            expires_delta (timedelta, optional): Token expiration time. Defaults to ACCESS_TOKEN_EXPIRE_MINUTES.
+            expires_delta (timedelta, optional): Token expiration time.
+            Defaults to ACCESS_TOKEN_EXPIRE_MINUTES.
         Returns:
             str: The encoded JWT access token.
         """
 
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    expire = (datetime.now(timezone.utc) +
+              (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)))
     to_encode.update({"exp": expire.timestamp()})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -106,7 +116,8 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 @router.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     """
-        Registers a new user by hashing the password and saving the user to the database.
+        Registers a new user by hashing the password and saving the user
+        to the database.
         Args:
             user (UserCreate): The user data for registration.
             db (Session): The database session.
@@ -116,7 +127,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
             HTTPException: If the email already exists.
         """
 
-    db_user = db.query(User).filter(User.email == user.email).first()
+    db_user = db.query(User).filter(and_(User.email == user.email)).first()
     if db_user:
         raise HTTPException(status_code=400, detail="This email already exists.")
 
@@ -143,10 +154,11 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             HTTPException: If authentication fails.
         """
 
-    db_user = db.query(User).filter(User.email == user.email).first()
+    db_user = db.query(User).filter(and_(User.email == user.email)).first()
 
     if not db_user or not verify_password(user.password, db_user.password):
-        raise HTTPException(status_code=401, detail="Try again! Your email or password are wrong.")
+        raise HTTPException(status_code=401,
+                            detail="Try again! Your email or password are wrong.")
 
     access_token = create_access_token(data={"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}

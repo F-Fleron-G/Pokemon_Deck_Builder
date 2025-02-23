@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from database import SessionLocal
-from models import User, Deck, DeckPokemon, Pokemon, Trainer, Energy, DeckTrainer, DeckEnergy
+from models import (User, Deck, DeckPokemon, Pokemon,
+                    Trainer, Energy, DeckTrainer, DeckEnergy)
 from schemas import DeckUpdate
 from auth import oauth2_scheme, decode_token
 from auth import get_api_key
@@ -12,7 +13,8 @@ from utils import fetch_pokemon_data, fetch_trainer_data, fetch_energy_data
 
 """
     This module handles all API routes related to deck management.
-    It provides endpoints for getting the user deck, saving/updating the deck, and removing cards.
+    It provides endpoints for getting the user deck, saving/updating the
+    deck, and removing cards.
 """
 
 router = APIRouter()
@@ -32,7 +34,8 @@ def get_db():
         db.close()
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme),
+                     db: Session = Depends(get_db)):
     """
         Retrieves the current authenticated user based on the JWT token.
         Args:
@@ -51,8 +54,9 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 
-@router.get("/deck")
-def get_user_deck(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+@router.get("/deck", openapi_extra={"security": [{"BearerAuth": []}]})
+def get_user_deck(user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
     user_deck = db.query(Deck).filter(and_(Deck.user_id == user.id)).first()
     """
         Retrieves the user's deck, including all Pokémon, Trainer, and Energy cards,
@@ -73,14 +77,20 @@ def get_user_deck(user: User = Depends(get_current_user), db: Session = Depends(
             "recommendations": [],
         }
 
-    pokemon_entries = db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id == user_deck.id)).all()
-    pokemon_list = db.query(Pokemon).filter(Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])).all()
+    pokemon_entries = (db.query(DeckPokemon)
+                       .filter(and_(DeckPokemon.deck_id == user_deck.id)).all())
+    pokemon_list = (db.query(Pokemon)
+                    .filter(Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])).all())
 
-    trainer_entries = db.query(DeckTrainer).filter(and_(DeckTrainer.deck_id == user_deck.id)).all()
-    trainer_list = db.query(Trainer).filter(Trainer.id.in_([entry.trainer_id for entry in trainer_entries])).all()
+    trainer_entries = (db.query(DeckTrainer)
+                       .filter(and_(DeckTrainer.deck_id == user_deck.id)).all())
+    trainer_list = db.query(Trainer).filter(Trainer.id.in_([entry.trainer_id
+                                                            for entry in trainer_entries])).all()
 
-    energy_entries = db.query(DeckEnergy).filter(and_(DeckEnergy.deck_id == user_deck.id)).all()
-    energy_list = db.query(Energy).filter(Energy.id.in_([entry.energy_id for entry in energy_entries])).all()
+    energy_entries = db.query(DeckEnergy).filter(and_(DeckEnergy.deck_id
+                                                      == user_deck.id)).all()
+    energy_list = db.query(Energy).filter(Energy.id.in_([entry.energy_id
+                                                         for entry in energy_entries])).all()
 
     deck_count = len(pokemon_list) + len(trainer_list) + len(energy_list)
 
@@ -88,12 +98,15 @@ def get_user_deck(user: User = Depends(get_current_user), db: Session = Depends(
 
     return {
         "deck": {
-            "pokemon": [{"id": p.id, "name": p.name, "image_url": p.image_url} for p in pokemon_list],
-            "trainers": [{"id": t.id, "name": t.name, "tcg_image_url": t.tcg_image_url} for t in trainer_list],
-            "energy": [{"id": e.id, "name": e.name, "tcg_image_url": e.tcg_image_url} for e in energy_list],
+            "pokemon": [{"id": p.id, "name": p.name,
+                         "image_url": p.image_url} for p in pokemon_list],
+            "trainers": [{"id": t.id, "name": t.name,
+                          "tcg_image_url": t.tcg_image_url} for t in trainer_list],
+            "energy": [{"id": e.id, "name": e.name,
+                        "tcg_image_url": e.tcg_image_url} for e in energy_list],
         },
-        "deck_count": deck_count,  # ✅ Keeps deck count up to date
-        "recommendations": recommendations,  # ✅ Dynamic suggestions based on the deck
+        "deck_count": deck_count,
+        "recommendations": recommendations,
     }
 
 
@@ -138,13 +151,13 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db),
                             db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id == user_deck.id)).all()}
 
     for pokemon_id in deck_update.pokemon_ids:
-        if pokemon_id not in existing_pokemon_ids:  # ✅ Only add if not already in deck
+        if pokemon_id not in existing_pokemon_ids:
             existing_pokemon = db.query(Pokemon).filter(and_(Pokemon.id == pokemon_id)).first()
 
             if not existing_pokemon:
                 pokemon_data = fetch_pokemon_data(pokemon_id)
                 if pokemon_data:
-                    pokemon_data.pop("id", None)  # ✅ Remove 'id' before inserting
+                    pokemon_data.pop("id", None)
 
                     new_pokemon = Pokemon(id=pokemon_id, **pokemon_data)
                     db.add(new_pokemon)
@@ -153,7 +166,8 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db),
                     existing_pokemon = new_pokemon
 
             if existing_pokemon:
-                new_deck_pokemon = DeckPokemon(deck_id=user_deck.id, pokemon_id=existing_pokemon.id)
+                new_deck_pokemon = DeckPokemon(deck_id=user_deck.id,
+                                               pokemon_id=existing_pokemon.id)
                 db.add(new_deck_pokemon)
                 added_pokemon.append({
                     "id": existing_pokemon.id,
@@ -169,7 +183,8 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db),
         trainer_data = fetch_trainer_data(trainer_name)
         if trainer_data:
             selected_trainer = trainer_data[0]
-            existing_trainer = db.query(Trainer).filter(and_(Trainer.name == selected_trainer["name"])).first()
+            existing_trainer = (db.query(Trainer)
+                                .filter(and_(Trainer.name == selected_trainer["name"])).first())
 
             if not existing_trainer:
                 new_trainer = Trainer(**selected_trainer)
@@ -186,13 +201,15 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db),
                 added_trainers.append(selected_trainer)
 
     added_energy = []
-    existing_energy_names = {e.energy_id for e in db.query(DeckEnergy).filter(and_(DeckEnergy.deck_id == user_deck.id)).all()}
+    existing_energy_names = {e.energy_id for e in
+                             db.query(DeckEnergy).filter(and_(DeckEnergy.deck_id == user_deck.id)).all()}
 
     for energy_type in deck_update.energy_types:
         energy_data = fetch_energy_data(energy_type)
         if energy_data:
             selected_energy = energy_data[0]
-            existing_energy = db.query(Energy).filter(and_(Energy.name == selected_energy["name"])).first()
+            existing_energy = (db.query(Energy)
+                               .filter(and_(Energy.name == selected_energy["name"])).first())
 
             if not existing_energy:
                 new_energy = Energy(**selected_energy)
@@ -223,7 +240,8 @@ def save_deck(deck_update: DeckUpdate, db: Session = Depends(get_db),
     }
 
 
-@router.delete("/deck/{pokemon_id}")
+@router.delete("/deck/{pokemon_id}",
+               openapi_extra={"security": [{"BearerAuth": []}]})
 def remove_from_deck(pokemon_id: int, user: User = Depends(get_current_user),
                      db: Session = Depends(get_db)):
     """

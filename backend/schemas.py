@@ -54,7 +54,7 @@ class TrainerOut(TrainerBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class EnergyBase(BaseModel):
@@ -78,4 +78,4 @@ class EnergyOut(EnergyBase):
     id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True

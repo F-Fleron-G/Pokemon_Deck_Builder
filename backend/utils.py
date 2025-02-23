@@ -40,7 +40,8 @@ def fetch_pokemon_data(pokemon_id_or_name):
     types = [t["type"]["name"].capitalize() for t in data["types"]]
     strengths, weaknesses = get_strengths_and_weaknesses(types)
     moves = [move["move"]["name"].capitalize() for move in data["moves"][:4]]
-    abilities = [ability["ability"]["name"].capitalize() for ability in data["abilities"]]
+    abilities = [ability["ability"]["name"].capitalize()
+                 for ability in data["abilities"]]
     stats = {stat["stat"]["name"]: stat["base_stat"] for stat in data["stats"]}
 
     return {
@@ -57,7 +58,8 @@ def fetch_pokemon_data(pokemon_id_or_name):
         "special_attack": stats.get("special-attack", 0),
         "special_defense": stats.get("special-defense", 0),
         "speed": stats.get("speed", 0),
-        "image_url": f"https://img.pokemondb.net/artwork/large/{data['name'].lower()}.jpg"
+        "image_url":
+            f"https://img.pokemondb.net/artwork/large/{data['name'].lower()}.jpg"
     }
 
 
