@@ -1,0 +1,82 @@
+.app-header {
+  background: #e5e5e5;
+  padding: 20px;
+  margin-bottom: 0;
+  position: relative;
+}
+
+.logo-img {
+  width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.header-nav {
+  display: flex;
+  gap: 10px;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.header-nav-login-btn,
+.header-nav-signup-btn,
+.header-nav-home-btn,
+.header-nav-about-btn {
+  width: 70px;
+  height: 90px;
+  background-color: #fde5d2;
+  color: #262626;
+  border: 3px solid #262626;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: 'Comic Sans MS', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+}
+
+.header-nav-login-btn:hover {
+  background-color: #e7d1c0;
+}
+
+.header-nav-signup-btn {
+ background-color: #f8ba9c;
+}
+
+.header-nav-signup-btn:hover {
+     background-color: #e3aa90;
+}
+
+.header-nav-home-btn {
+  background-color: #d0b3ff;
+}
+
+.header-nav-home-btn:hover {
+  background-color: #bba0e7;
+}
+
+.header-nav-about-btn {
+  background-color: #81b2c7;
+}
+
+.header-nav-about-btn:hover {
+  background-color: #6f9eb1;
+}
+
+@media (max-width: 600px) {
+  .logo-img {
+    width: 200px;
+  }
+  .header-nav {
+    position: static;
+    margin-top: 10px;
+    justify-content: center;
+  }
+}

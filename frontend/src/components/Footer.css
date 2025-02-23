@@ -1,0 +1,30 @@
+.app-footer {
+  background: url("../assets/backgroundImage.png") center no-repeat;
+  background-size: cover;
+  min-height: 285px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 60px 0 0 0;
+}
+
+.app-footer p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.app-footer img {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .app-footer img {
+    max-width: 80%;
+  }
+}

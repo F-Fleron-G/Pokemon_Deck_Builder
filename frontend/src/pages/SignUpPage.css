@@ -1,0 +1,99 @@
+
+.signup-page {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Comic Sans MS', sans-serif;
+}
+
+.signup-section {
+  background: url("../assets/background_pages.png") center no-repeat;
+  background-size: cover;
+  background-color: #f8ba9c;
+  padding: 50px 0 50px 0;
+  margin-top: 10px;
+  margin-bottom: 10px;
+   min-height: 285px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-auth-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  border: 3px solid #262626;
+  text-align: center;
+}
+
+.signup-info-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.signup-auth-field {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.signup-auth-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.signup-auth-field input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.signup-auth-button {
+  font-family: 'Comic Sans MS', sans-serif;
+  width: 100%;
+  padding: 10px;
+  background-color: #f8ba9c;
+  color: #262626;
+  border: 3px solid #262626;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.signup-auth-button:hover {
+  background-color: #e3aa90;
+}
+
+.signup-error-text {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.signup-auth-link {
+  margin-top: 15px;
+  font-size: 1.0rem;
+}
+
+@media (max-width: 500px) {
+  .signup-auth-container,
+  .signup-info-container {
+    padding: 20px;
+    margin: 20px;
+  }
+
+  .signup-auth-field input {
+    padding: 6px;
+  }
+
+  .signup-auth-button {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+}
+

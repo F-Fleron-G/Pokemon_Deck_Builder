@@ -1,4 +1,12 @@
-# ✅ Type Matchup Chart (Simplified)
+"""
+    This module provides the type match-up information for Pokémon.
+    It defines a type chart that maps each Pokémon type to the types it is weak to
+    and strong against.
+    Additionally, it includes a helper function to calculate the overall strengths
+    and weaknesses based on a list of Pokémon types.
+"""
+
+
 type_chart = {
     "Normal": {"weak_to": ["Fighting"], "strong_against": []},
     "Fire": {"weak_to": ["Water", "Rock", "Ground"], "strong_against": ["Grass", "Bug", "Ice", "Steel"]},
@@ -22,7 +30,19 @@ type_chart = {
 
 
 def get_strengths_and_weaknesses(pokemon_types):
-    """Calculate strengths and weaknesses dynamically based on Pokémon types."""
+    """
+    Calculate the combined strengths and weaknesses for a list of Pokémon types.
+    Given a list of Pokémon types (for example, ["Fire", "Water"]), this function
+    uses a predefined type chart to determine which types these Pokémon are
+    collectively strong against and which types they are weak against.
+    Args:
+        pokemon_types (list): A list of Pokémon types as strings.
+    Returns:
+        tuple: Two lists:
+            - The first list contains the types that the given Pokémon types are strong against.
+            - The second list contains the types that the given Pokémon types are weak against.
+    """
+
     strengths = set()
     weaknesses = set()
 

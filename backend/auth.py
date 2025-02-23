@@ -9,36 +9,52 @@ import os
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 
-# ✅ Ensure tables are created before running API
+"""
+    This module handles authentication and authorisation.
+    It defines endpoints for user signup, login, token creation, and token decoding,
+    using JWTs and password hashing with bcrypt.
+"""
+
+
 Base.metadata.create_all(engine)
 
-# ✅ Load Secret Key from Environment Variables
 SECRET_KEY = os.getenv("SECRET_KEY", "your_default_secret_key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-# ✅ Password Hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# ✅ OAuth2 Token Scheme (still available if needed)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-# ✅ New API Key Header Dependency for direct token input in Swagger
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
 def get_api_key(api_key: str = Security(api_key_header)):
+    """
+        Validates the API key from the Authorization header.
+        Args:
+            api_key (str): The API key string from the request header.
+        Returns:
+            str: The API key if valid.
+        Raises:
+            HTTPException: If the API key is missing or does not start with 'Bearer '.
+        """
+
     if not api_key or not api_key.startswith("Bearer "):
         raise HTTPException(status_code=403, detail="Not authenticated")
-    return api_key  # Returns the full "Bearer <token>" string
+    return api_key
 
 
-# ✅ FastAPI Router
 router = APIRouter()
 
 
-# ✅ Database Dependency
 def get_db():
+    """
+        Provides a database session for request handling.
+        Yields:
+            Session: A SQLAlchemy session.
+        """
+
     db = SessionLocal()
     try:
         yield db
@@ -46,30 +62,63 @@ def get_db():
         db.close()
 
 
-# ✅ Hash Password Function
 def hash_password(password: str) -> str:
+    """
+        Hashes the provided password using bcrypt.
+        Args:
+            password (str): The plain text password.
+        Returns:
+            str: The hashed password.
+        """
+
     return pwd_context.hash(password)
 
 
-# ✅ Verify Password Function
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """
+        Verifies that the plain password matches the hashed password.
+        Args:
+            plain_password (str): The plain text password.
+            hashed_password (str): The hashed password.
+        Returns:
+            bool: True if the password matches, otherwise False.
+        """
+
     return pwd_context.verify(plain_password, hashed_password)
 
 
-# ✅ Create JWT Token
 def create_access_token(data: dict, expires_delta: timedelta = None):
+    """
+        Creates a JWT access token.
+        Args:
+            data (dict): The data to include in the token payload.
+            expires_delta (timedelta, optional): Token expiration time. Defaults to ACCESS_TOKEN_EXPIRE_MINUTES.
+        Returns:
+            str: The encoded JWT access token.
+        """
+
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
-    to_encode.update({"exp": expire.timestamp()})  # ✅ Store expiration as Unix timestamp
+    to_encode.update({"exp": expire.timestamp()})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-# ✅ Signup Endpoint
 @router.post("/signup")
 def signup(user: UserCreate, db: Session = Depends(get_db)):
+    """
+        Registers a new user by hashing the password and saving the user to the database.
+        Args:
+            user (UserCreate): The user data for registration.
+            db (Session): The database session.
+        Returns:
+            dict: A success message upon registration.
+        Raises:
+            HTTPException: If the email already exists.
+        """
+
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="This email already exists.")
 
     hashed_password = hash_password(user.password)
     new_user = User(email=user.email, password=hashed_password)
@@ -78,28 +127,45 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    print(f"✅ User signed up: {user.email}")  # ✅ Debugging
-    return {"message": "User created successfully"}
+    return {"message": "Success! You can now login."}
 
 
-# ✅ Login Endpoint
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
+    """
+        Logs in a user by verifying credentials and returning a JWT access token.
+        Args:
+            user (UserLogin): The login credentials.
+            db (Session): The database session.
+        Returns:
+            dict: The access token and token type.
+        Raises:
+            HTTPException: If authentication fails.
+        """
+
     db_user = db.query(User).filter(User.email == user.email).first()
 
     if not db_user or not verify_password(user.password, db_user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Try again! Your email or password are wrong.")
 
     access_token = create_access_token(data={"sub": db_user.email})
-    print(f"✅ User logged in: {user.email}")  # ✅ Debugging
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-# ✅ Decode JWT Token
 def decode_token(token: str):
+    """
+        Decodes a JWT token and extracts the subject (user email).
+        Args:
+            token (str): The JWT token.
+        Returns:
+            str: The user's email (subject) extracted from the token.
+        Raises:
+            HTTPException: If the token is expired or invalid.
+        """
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        return payload.get("sub")  # The "sub" contains the user's email
+        return payload.get("sub")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:

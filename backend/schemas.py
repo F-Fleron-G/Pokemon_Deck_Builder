@@ -1,20 +1,22 @@
 from pydantic import BaseModel, EmailStr, constr
 from typing import List, Optional
 
+"""
+    This module defines Pydantic models (schemas) for user registration, login,
+    deck updates, and Trainer/Energy card details. These schemas are used for data
+    validation and API documentation.
+"""
 
-# ✅ User Signup Schema
+
 class UserCreate(BaseModel):
-    """Schema for user registration"""
     email: EmailStr
-    password: constr(min_length=6)  # Enforce a minimum password length
+    password: constr(min_length=6)
 
     class Config:
-        from_attributes = True  # Enables ORM compatibility
+        from_attributes = True
 
 
-# ✅ User Login Schema
 class UserLogin(BaseModel):
-    """Schema for user login"""
     email: EmailStr
     password: str
 
@@ -22,10 +24,8 @@ class UserLogin(BaseModel):
         from_attributes = True
 
 
-# ✅ Deck Update Schema - List of Pokémon IDs
 class DeckUpdate(BaseModel):
-    """Schema for updating a user's deck with Pokémon IDs"""
-    pokemon_ids: List[int]  # A list of Pokémon IDs to save in the user's deck
+    pokemon_ids: List[int]
     trainer_names: Optional[List[str]] = []
     energy_types: Optional[List[str]] = []
 
@@ -33,7 +33,6 @@ class DeckUpdate(BaseModel):
         from_attributes = True
 
 
-# -- Trainer Schemas --
 class TrainerBase(BaseModel):
     name: str
     tcg_id: Optional[str] = None
@@ -44,11 +43,11 @@ class TrainerBase(BaseModel):
 
 
 class TrainerCreate(TrainerBase):
-    pass  # If identical to TrainerBase
+    pass
 
 
 class TrainerUpdate(TrainerBase):
-    pass  # Could override if partial updates differ
+    pass
 
 
 class TrainerOut(TrainerBase):
@@ -58,7 +57,6 @@ class TrainerOut(TrainerBase):
         orm_mode = True
 
 
-# -- Energy Schemas --
 class EnergyBase(BaseModel):
     name: str
     tcg_id: Optional[str] = None
