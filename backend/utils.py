@@ -1,6 +1,9 @@
 import requests
 import urllib.parse
 from type_matchups import get_strengths_and_weaknesses
+from sqlalchemy.orm import Session
+from database import SessionLocal
+from models import Pokemon, Trainer, Energy
 
 """
     This module contains utility functions for fetching Pokémon data from the
@@ -43,6 +46,7 @@ def fetch_pokemon_data(pokemon_id_or_name):
     abilities = [ability["ability"]["name"].capitalize()
                  for ability in data["abilities"]]
     stats = {stat["stat"]["name"]: stat["base_stat"] for stat in data["stats"]}
+    print(f"DEBUG: {name} - Types: {types} - Strengths: {strengths} - Weaknesses: {weaknesses}")
 
     return {
         "id": data["id"],

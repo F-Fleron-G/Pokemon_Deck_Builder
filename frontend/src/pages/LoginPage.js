@@ -30,7 +30,6 @@ function LoginPage() {
     <>
       <Header />
       <div className="login-page">
-        {/* Login Form Section */}
         <section className="log-in-section">
           <div className="login-auth-container">
             <h2>Login</h2>

@@ -3,113 +3,193 @@ from utils import fetch_pokemon_data
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import DeckPokemon, DeckTrainer, DeckEnergy, Pokemon, Trainer, Energy
-from type_matchups import type_chart
+from type_matchups import type_chart, get_strengths_and_weaknesses
 from sqlalchemy import and_
+import random
+import requests
 
 """
-    This module provides functions for generating deck recommendations based on
-    the user's deck composition. It analyzes strengths, weaknesses, and overall
-    deck synergy to suggest actionable improvements.
+    This file returns recommendations in a structured format (list of dicts).
+    For example:
+    [
+      {
+        "type": "pokemon",
+        "name": "Charizard",
+        "tcg_image_url": "https://img.pokemondb.net/artwork/large/charizard.jpg",
+        "message": "Your deck has 2 Pokémon weak to Grass. Consider adding Charizard!"
+      },
+      ...
+    ]
+
+    Key points:
+      - We do not call fetch_pokemon_tcg_card() for recommended Pokémon.
+        Instead, we use official PokemonDB images.
+      - This 'Option A' approach shows TCG images for trainers and energies
+        you already have in your deck, but recommended Pokémon use PokemonDB art.
 """
 
 
-def generate_recommendations(user_deck, db):
+def generate_recommendations(user_deck, db: Session):
     """
-       Generates a list of recommendations to improve the deck based on
-       current composition.
-       This function queries the database to fetch Pokémon, Trainer, and
-       Energy cards in the deck, calculates the deck's synergy score, and
-       identifies weaknesses. It then returns actionable suggestions, such
-       as adding or replacing cards.
-       Args:
-           user_deck (Deck): The user's deck object.
-           db (Session): The database session.
-       Returns:
-           list: A list of recommendation strings.
+    Generates a list of recommendation objects to improve the deck, using:
+      - PokemonDB images for recommended Pokémon
+      - Basic logic for trainers, energy, synergy score
     """
-
     if not user_deck:
-        return ["Your deck is empty! Start adding Pokémon!"]
+        return [{
+            "type": "info",
+            "name": "No Deck",
+            "image_url": "",
+            "message": "Your deck is empty! Start adding Pokémon."
+        }]
 
     recommendations = []
 
-    pokemon_entries = (db.query(DeckPokemon)
-                       .filter(and_(DeckPokemon.deck_id == user_deck.id)).all())
-    trainer_entries = (db.query(DeckTrainer)
-                       .filter(and_(DeckTrainer.deck_id == user_deck.id)).all())
-    energy_entries = (db.query(DeckEnergy)
-                      .filter(and_(DeckEnergy.deck_id == user_deck.id)).all())
+    pokemon_entries = db.query(DeckPokemon).filter(and_(
+        DeckPokemon.deck_id == user_deck.id
+    )).all()
+    trainer_entries = db.query(DeckTrainer).filter(and_(
+        DeckTrainer.deck_id == user_deck.id
+    )).all()
+    energy_entries = db.query(DeckEnergy).filter(and_(
+        DeckEnergy.deck_id == user_deck.id
+    )).all()
 
-    pokemon_list = (db.query(Pokemon)
-                    .filter(Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])).all())
-    trainer_list = (db.query(Trainer)
-                    .filter(Trainer.id.in_([entry.trainer_id for entry in trainer_entries])).all())
-    energy_list = (db.query(Energy)
-                   .filter(Energy.id.in_([entry.energy_id for entry in energy_entries])).all())
+    pokemon_list = db.query(Pokemon).filter(
+        Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])
+    ).all()
+    trainer_list = db.query(Trainer).filter(
+        Trainer.id.in_([entry.trainer_id for entry in trainer_entries])
+    ).all()
+    energy_list = db.query(Energy).filter(
+        Energy.id.in_([entry.energy_id for entry in energy_entries])
+    ).all()
 
-    synergy_score = calculate_deck_score(pokemon_list, trainer_list, energy_list)
+    deck_score = calculate_deck_score(pokemon_list, trainer_list, energy_list)
 
-    weaknesses = {}
-    for pokemon in pokemon_list:
-        pokemon_data = fetch_pokemon_data(pokemon.id)
-        if pokemon_data:
-            for weak in pokemon_data["weaknesses"]:
-                weaknesses[weak] = weaknesses.get(weak, 0) + 1
+    deck_types = [fetch_pokemon_data(p.id).get("types", []) for p in pokemon_list]
+    flat_types = [t for sublist in deck_types for t in sublist]
 
-    for weak_type, count in weaknesses.items():
-        strong_pokemon = fetch_pokemon_by_strength(weak_type)
-        recommendations.append(f"Your deck has {count} Pokémon weak to {weak_type}."
-                               f" Consider adding {strong_pokemon}.")
+    strengths, weaknesses = get_strengths_and_weaknesses(flat_types)
+    weaknesses_count = {w: weaknesses.count(w) for w in set(weaknesses)}
 
-    if len(energy_list) < len(pokemon_list) / 2:
-        recommendations.append("It looks like you might need more Energy cards to"
-                               " support your Pokémon!")
+    print(f"Weaknesses found: {weaknesses_count}")
 
-    if len(trainer_list) == 0:
-        recommendations.append("Consider adding at least one Trainer card to boost"
-                               " your deck's abilities.")
+    for weak_type, count in weaknesses_count.items():
+        strong_pokemon_name = fetch_pokemon_by_strength(weak_type)
 
-    if synergy_score < 50:
-        recommendations.append(
-            f"Your deck's synergy score is {synergy_score}, which is lower than"
-            f" the ideal target of 50. "
-            f"Consider adjusting your Energy or Trainer cards for better balance."
-        )
+        print(f"Checking for strong Pokémon against {weak_type}: {strong_pokemon_name}")
+
+        if strong_pokemon_name and strong_pokemon_name != "No strong Pokémon found":
+            rec_obj = {
+                "type": "pokemon",
+                "name": strong_pokemon_name,
+                "tcg_image_url": (
+                    f"https://img.pokemondb.net/artwork/large/{strong_pokemon_name.lower()}.jpg"
+                ),
+                "message": (
+                    f"Your deck has {count} Pokémon weak to {weak_type}. "
+                    f"Consider adding {strong_pokemon_name}!"
+                )
+            }
+            recommendations.append(rec_obj)
+
+    if len(trainer_list) > 0:
+        for trainer in trainer_list:
+            rec_obj = {
+                "type": "trainer",
+                "name": trainer.name,
+                "tcg_image_url": trainer.tcg_image_url,
+                "message": f"Consider adding {trainer.name} to improve your deck!"
+            }
+            recommendations.append(rec_obj)
+
+    if len(energy_list) > 0:
+        for energy in energy_list:
+            rec_obj = {
+                "type": "energy",
+                "name": energy.name,
+                "tcg_image_url": energy.tcg_image_url,
+                "message": f"Consider adding more {energy.name} for better balance!"
+            }
+            recommendations.append(rec_obj)
+
+    if deck_score < 50:
+        recommendations.append({
+            "type": "info",
+            "name": "Low Synergy",
+            "tcg_image_url": "",
+            "message": f"Your deck score is {deck_score}. Try balancing your Pokémon, Trainers, and Energy."
+        })
     else:
-        recommendations.append(
-            f"Your deck's synergy score is {synergy_score}. That's a great start! "
-            f"You might consider fine-tuning your deck further for even better balance."
-        )
+        recommendations.append({
+            "type": "info",
+            "name": "Deck Score",
+            "tcg_image_url": "",
+            "message": f"Your deck score is {deck_score}. Nice job!"
+        })
 
     if not recommendations:
-        recommendations.append("Great job! Your deck seems well-balanced!")
+        recommendations.append({
+            "type": "info",
+            "name": "No Suggestions",
+            "tcg_image_url": "",
+            "message": "Your deck seems balanced already!"
+        })
 
     return recommendations
 
 
-def fetch_pokemon_by_strength(weak_type):
+pokemon_with_images_cache = set()
+
+
+def has_valid_image(pokemon_name):
     """
-        Finds a Pokémon that is strong against a specified weakness type.
-        This function uses the type chart from 'type_matchups.py' and the
-        fetch_pokemon_data() utility to return the name of a Pokémon type
-        that counters the given weakness.
-        Args:
-            weak_type (str): The weakness type to counter.
-        Returns:
-            str: The name of a Pokémon that is strong against the given weakness.
+    Check if a Pokémon has an image in PokémonDB.
+    Uses caching to prevent repeated slow requests.
+    """
+
+    image_url = f"https://img.pokemondb.net/artwork/large/{pokemon_name.lower()}.jpg"
+
+    if pokemon_name in pokemon_with_images_cache:
+        return True
+
+    response = requests.head(image_url, timeout=3)
+    if response.status_code == 200:
+        pokemon_with_images_cache.add(pokemon_name)  # Store in cache
+        return True
+    return False
+
+
+def fetch_pokemon_by_strength(weak_type: str):
+    """
+    Fetch a random Pokémon that is strong against the given 'weak_type'.
+    Ensures that only Pokémon with a valid image in PokémonDB are selected.
     """
 
     strong_types = [
-        p_type for p_type, matchups in type_chart.items()
-        if weak_type in matchups["strong_against"]
+        p_type for p_type, matchups in type_chart.items() if weak_type in matchups["weak_to"]
     ]
 
     if not strong_types:
         return "No strong Pokémon found"
 
-    for strong_type in strong_types:
-        strong_pokemon_data = fetch_pokemon_data(strong_type)
-        if strong_pokemon_data:
-            return strong_pokemon_data["name"].capitalize()
+    chosen_type = random.choice(strong_types)
 
-    return "No strong Pokémon found"
+    pokeapi_url = f"https://pokeapi.co/api/v2/type/{chosen_type.lower()}/"
+    response = requests.get(pokeapi_url, timeout=5)
+
+    if response.status_code != 200:
+        return "No strong Pokémon found"
+
+    data = response.json()
+    all_pokemon = [p["pokemon"]["name"].capitalize() for p in data["pokemon"]]
+
+    valid_pokemon = [p for p in all_pokemon if has_valid_image(p)]
+
+    if not valid_pokemon:
+        return "Garchomp"
+
+    selected_pokemon = random.choice(valid_pokemon)
+
+    return selected_pokemon

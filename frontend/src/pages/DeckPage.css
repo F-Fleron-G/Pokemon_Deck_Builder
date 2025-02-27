@@ -1,24 +1,109 @@
 .deck-page-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
 
 .deck-top-section {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 30px;
+  margin: 20px;
 }
 
-.deck-summary-column,
-.deck-recommendations-column,
-.deck-suggestion-column {
+.deck-page-three-cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.deck-left-col,
+.deck-middle-col,
+.deck-right-col {
   flex: 1;
-  padding: 10px;
-  background-color: #fff;
+  min-width: 280px;
+  border: 3px solid #262626;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   border-radius: 8px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.deck-left-col {
+ background-color: #d0b3ff;
+}
+
+.deck-middle-col {
+ background-color: #e5e5e5;;
+}
+
+.deck-right-col {
+ background-color: #fde5d2;
+}
+
+.recommendations-slider-container {
+  position: relative;
+  width: 100%;
+  height: 650px;
+  max-width: 450px;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  margin: 0 auto;
+}
+
+.recommendations-slider {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease;
+}
+
+.recommendation-card {
+  background-color: #fff;
+  max-height: 100%;
+  border-bottom: 1px solid #ccc;
+  padding: 20px;
+  text-align: center;
+}
+
+.recommendation-card button {
+  background-color: #e5e5e5;
+  color: #262626;
+  padding: 6px 5px;
+  font-size: 1rem;
+  border: 3px solid #262626;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Comic Sans MS', sans-serif;
+  transition: background-color 0.3s;
+  min-width: 80px;
+  text-align: center;
+}
+
+.recommendation-card button:hover {
+  background-color: #bebdbd;
+}
+
+.vertical-slider-controls {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(-50%);
+}
+
+.vertical-slider-controls button {
+  background-color: #fde5d2;
+  transition: background-color 0.3s;
+  border-radius: 8px;
+  border: 3px solid #262626;
+  height: 50px;
+  margin: 5px 5px 0 0;
+  cursor: pointer;
+}
+
+.vertical-slider-controls button:hover {
+  background-color: #e7d1c0;
 }
 
 .suggestion-img {
@@ -27,6 +112,83 @@
   object-fit: contain;
   margin-top: 10px;
 }
+
+.deck-strength-meter-container {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 350px;
+}
+
+.deck-strength-meter {
+  width: 100%;
+  height: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px solid #262626;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+  min-width: 200px;
+}
+
+.meter-bar {
+  height: 100%;
+  background-color: #639e69;
+  transition: width 0.3s ease-in-out;
+  min-width: 20px;
+}
+
+.meter-label {
+  padding-right: 10px;
+  font-weight: bold;
+  color: #262626;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.back-to-deck-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 90px 0 10px 0;
+}
+
+.back-to-deck-builder-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+}
+
+.back-to-deck-builder-button {
+  background-color: #e5e5e5;
+  color: #262626;
+  padding: 12px 25px;
+  font-size: 1rem;
+  border: 3px solid #262626;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Comic Sans MS', sans-serif;
+  transition: background-color 0.3s;
+  min-width: 180px;
+  text-align: center;
+}
+
+.back-to-deck-builder-button:hover {
+  background-color: #bebdbd;
+}
+
 .deck-cards-section {
   margin-top: 30px;
   display: flex;
@@ -38,6 +200,7 @@
   background-color: #fff;
   padding: 15px;
   border-radius: 8px;
+  border: 3px solid #262626;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
@@ -52,7 +215,65 @@
 .deck-card {
   text-align: center;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 3px solid grey;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.deck-card img {
+  max-width: 150px;
+  height: auto;
+}
+
+.deck-card button {
+  background-color: #fff;
+  color: #cf3f3e;
+  padding: 6px 15px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 3px solid #cf3f3e;
+  cursor: pointer;
+  font-family: 'Comic Sans MS', sans-serif;
+  transition: background-color 0.3s;
+  min-width: 80px;
+  text-align: center;
+}
+
+.deck-card button:hover {
+  background-color: #cf3f3e;
+  color: #fff;
+  border: 3px solid #cf3f3e;
   border-radius: 8px;
 }
 
+@media (max-width: 768px) {
+  .deck-page-three-cols {
+    flex-direction: column;
+  }
+  .deck-left-col,
+  .deck-middle-col,
+  .deck-right-col {
+    flex: 1 1 100%;
+    min-width: 0;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .deck-strength-meter-container {
+    max-width: 90%;
+  }
+
+  .deck-strength-meter {
+    min-width: 150px;
+  }
+
+  .back-to-deck-builder-container img {
+    max-width: 300px;
+  }
+
+  .back-to-deck-builder-button {
+    min-width: 130px;
+  }
+}

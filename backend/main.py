@@ -1,19 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
-import models
 from database import Base, engine
 from auth import router as auth_router
 from deck_routes import router as deck_router
 from tcg_routes import router as tcg_router
-
-"""
-    Main entry point for the Pokémon Deck Builder API.
-
-    This file sets up the FastAPI application, configures CORS and OpenAPI (Swagger)
-    documentation, initializes the database tables, and includes all the necessary
-    routers for authentication, deck management, and TCG data.
-"""
+import sys
+print("Python version running FastAPI:", sys.executable)
 
 app = FastAPI()
 
@@ -55,7 +48,6 @@ def setup_database():
         This function ensures that the database schema is in place before the
         application starts handling requests.
     """
-    print("Ensuring database tables exist...")
     Base.metadata.create_all(bind=engine)
     print("Tables created successfully!")
 
@@ -71,7 +63,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(deck_router, prefix="/user", tags=["Deck Management"])
+app.include_router(deck_router, prefix="/deck", tags=["Deck Management"])
 app.include_router(tcg_router, prefix="/tcg", tags=["TCG"])
 
 

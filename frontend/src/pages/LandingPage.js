@@ -32,7 +32,6 @@ function LandingPage() {
     <div className="landing-container">
       <Header />
 
-      {/* Welcome Section */}
       <section className="welcome-section" id="welcome">
         <div className="two-column">
           <div className="text-column">
@@ -45,7 +44,7 @@ function LandingPage() {
               className="cta-button"
               onClick={() => navigate("/home")}
             >
-              Go to Deck Builder
+              Go To Deck Builder
             </button>
           </div>
           <div className="image-column">
@@ -58,8 +57,6 @@ function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Login Section */}
       <section className="login-section" id="login-section">
         <div className="two-column reverse-layout">
           <div className="text-column">
@@ -88,8 +85,6 @@ function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* About Section */}
       <section className="about-section" id="about">
         <div className="two-column">
           <div className="text-column">
@@ -112,7 +107,7 @@ function LandingPage() {
             </p>
 
             <button className="back-to-top" onClick={scrollToTop}>
-              ⬆ GO UP!
+              ⬆ Go Up!
             </button>
           </div>
           <div className="image-column">

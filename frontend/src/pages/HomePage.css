@@ -258,7 +258,7 @@ body {
   background: radial-gradient(circle, #d0b3ff, #bba0e7);
   border: 3px solid #262626;
   border-radius: 8px;
-  font-size: 20px;
+  font-size: 18px;
   padding: 10px;
   border-radius: none;
   color: #262626;
@@ -281,9 +281,18 @@ body {
   margin-bottom: 15px;
 }
 
+.tcg-zoom {
+  transition: transform 0.3s ease;
+}
+
+.tcg-zoom:hover {
+  transform: scale(1.5);
+}
+
 .catch-btn {
   width: 70px;
-  height: 70px;
+  height: 110px;
+  margin-right: 20px;
   background: url("https://cdn10.bigcommerce.com/s-yhxhf/products/12462/images/41515/225ATV053__30692.1470520095.1080.1080.png?c=2") center no-repeat;
   background-size: contain;
   border: none;
@@ -301,7 +310,8 @@ body {
 .catch-btn-text {
   font-family: 'Comic Sans MS', sans-serif;
   color: #262626;
-  margin-bottom: 10px;
+  margin-bottom:30px;
+  margin-right: 20px;
 }
 
 .caught {

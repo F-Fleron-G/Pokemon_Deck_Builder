@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
@@ -30,7 +29,6 @@ function SignUpPage() {
     <>
       <Header />
       <div className="signup-page">
-        {/* Sign-Up Form Section */}
         <section className="signup-section">
       <div className="signup-auth-container">
         <h2>Sign Up</h2>

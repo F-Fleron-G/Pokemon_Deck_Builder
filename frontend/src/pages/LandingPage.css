@@ -98,11 +98,12 @@
   background-color: #e5e5e5;
   color: #262626;
   border: 3px solid #262626;
-  padding: 10px 20px;
-  font-size: 0.9rem;
+  padding: 12px 25px;
+  font-size: 1rem;
   font-family: 'Comic Sans MS', sans-serif;
   border-radius: 8px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .back-to-top:hover {
