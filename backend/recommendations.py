@@ -1,5 +1,5 @@
 from synergy import calculate_deck_score
-from utils import fetch_pokemon_data
+from utils import fetch_pokemon_data, fetch_trainer_data, fetch_energy_data
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import DeckPokemon, DeckTrainer, DeckEnergy, Pokemon, Trainer, Energy
@@ -80,19 +80,46 @@ def generate_recommendations(user_deck, db: Session):
 
         print(f"Checking for strong Pokémon against {weak_type}: {strong_pokemon_name}")
 
-        if strong_pokemon_name and strong_pokemon_name != "No strong Pokémon found":
+        if strong_pokemon_name and strong_pokemon_name["name"] != "No strong Pokémon found":
             rec_obj = {
+                "id": strong_pokemon_name["id"],
                 "type": "pokemon",
-                "name": strong_pokemon_name,
+                "name": strong_pokemon_name["name"],
                 "tcg_image_url": (
-                    f"https://img.pokemondb.net/artwork/large/{strong_pokemon_name.lower()}.jpg"
+                    f"https://img.pokemondb.net/artwork/large/{strong_pokemon_name['name'].lower()}.jpg"
                 ),
                 "message": (
                     f"Your deck has {count} Pokémon weak to {weak_type}. "
-                    f"Consider adding {strong_pokemon_name}!"
+                    f"Consider adding {strong_pokemon_name['name']}!"
                 )
             }
             recommendations.append(rec_obj)
+
+        external_trainers = fetch_trainer_data("")
+        if external_trainers:
+            deck_trainer_names = {trainer.name.lower() for trainer in trainer_list}
+            for ext_trainer in external_trainers:
+                if ext_trainer["name"].lower() not in deck_trainer_names:
+                    rec_obj = {
+                        "type": "trainer",
+                        "name": ext_trainer["name"],
+                        "tcg_image_url": ext_trainer["tcg_image_url"],
+                        "message": f"Consider adding {ext_trainer['name']} to improve your deck!"
+                    }
+                    recommendations.append(rec_obj)
+
+        external_energy = fetch_energy_data("")
+        if external_energy:
+            deck_energy_names = {energy.name.lower() for energy in energy_list}
+            for ext_energy in external_energy:
+                if ext_energy["name"].lower() not in deck_energy_names:
+                    rec_obj = {
+                        "type": "energy",
+                        "name": ext_energy["name"],
+                        "tcg_image_url": ext_energy["tcg_image_url"],
+                        "message": f"Consider adding more {ext_energy['name']} for better balance!"
+                    }
+                    recommendations.append(rec_obj)
 
     if len(trainer_list) > 0:
         for trainer in trainer_list:
@@ -156,7 +183,7 @@ def has_valid_image(pokemon_name):
 
     response = requests.head(image_url, timeout=3)
     if response.status_code == 200:
-        pokemon_with_images_cache.add(pokemon_name)  # Store in cache
+        pokemon_with_images_cache.add(pokemon_name)
         return True
     return False
 
@@ -166,13 +193,12 @@ def fetch_pokemon_by_strength(weak_type: str):
     Fetch a random Pokémon that is strong against the given 'weak_type'.
     Ensures that only Pokémon with a valid image in PokémonDB are selected.
     """
-
     strong_types = [
         p_type for p_type, matchups in type_chart.items() if weak_type in matchups["weak_to"]
     ]
 
     if not strong_types:
-        return "No strong Pokémon found"
+        return {"name": "No strong Pokémon found", "id": None}
 
     chosen_type = random.choice(strong_types)
 
@@ -180,16 +206,21 @@ def fetch_pokemon_by_strength(weak_type: str):
     response = requests.get(pokeapi_url, timeout=5)
 
     if response.status_code != 200:
-        return "No strong Pokémon found"
+        return {"name": "No strong Pokémon found", "id": None}
 
     data = response.json()
-    all_pokemon = [p["pokemon"]["name"].capitalize() for p in data["pokemon"]]
+    all_pokemon = [
+        {
+            "name": p["pokemon"]["name"].capitalize(),
+            "id": int(p["pokemon"]["url"].split("/")[-2])
+        }
+        for p in data["pokemon"]
+    ]
 
-    valid_pokemon = [p for p in all_pokemon if has_valid_image(p)]
+    valid_pokemon = [p for p in all_pokemon if has_valid_image(p["name"])]
 
     if not valid_pokemon:
-        return "Garchomp"
+        return {"name": "Garchomp", "id": 445}
 
     selected_pokemon = random.choice(valid_pokemon)
-
     return selected_pokemon

@@ -284,6 +284,8 @@ const unifiedCardsFiltered = useMemo(() => {
       setRecommendations(response.data.recommendations);
 
       alert("Deck updated successfully!");
+      // Clear the local deck state
+      setDeck([]);
     } catch (error) {
       console.error("Error updating deck:", error);
       alert("Failed to update your deck. Please log in first or check console.");
@@ -316,6 +318,15 @@ const unifiedCardsFiltered = useMemo(() => {
     if (card.type === "energy" && (countByType.energy || 0) >= MAX_ENERGY) {
       alert("Maximum of 20 Energy cards allowed!");
       return;
+    }
+
+    if (card.type === "pokemon" && !card.id && card.url) {
+    const parts = card.url.split("/").filter(Boolean);
+    card.id = parseInt(parts[parts.length - 1], 10);
+    }
+
+    if (card.type === "trainer" && card.name) {
+        card.name = card.name.trim();
     }
 
     setDeck((prevDeck) => [...prevDeck, card]);
@@ -544,8 +555,6 @@ const unifiedCardsFiltered = useMemo(() => {
               >
                 Total Cards Found: {unifiedCardsFiltered.length}
               </div>
-
-              {/* arrow buttons */}
               <div className="arrow-buttons-vertical">
                 <button className="start-btn" onClick={() => setSelectedIndex(0)} disabled={selectedIndex === 0}>
                   Start
@@ -571,15 +580,12 @@ const unifiedCardsFiltered = useMemo(() => {
               </div>
             </div>
           </div>
-
-          {/* Right col: detail card */}
           <div className="right-col">
             {selectedCardDetail ? (
               <div className="detail-card">
                 <h2 className="detail-name">
                   {(selectedCardDetail.name || "").toUpperCase()}
                 </h2>
-                {/* catch button + image */}
                 <div style={{ position: "relative" }}>
                   {selectedCardDetail.type === "pokemon" ? (
                     <img
@@ -712,8 +718,6 @@ const unifiedCardsFiltered = useMemo(() => {
                 <li key={idx}>{rec.message || rec}</li>
               ))}
             </ul>
-
-            {/* View My Deck */}
             <button className="deck-button" onClick={() => navigate("/deck")}>View My Deck</button>
           </div>
         </div>

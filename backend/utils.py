@@ -4,6 +4,8 @@ from type_matchups import get_strengths_and_weaknesses
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from models import Pokemon, Trainer, Energy
+from functools import lru_cache
+
 
 """
     This module contains utility functions for fetching Pokémon data from the

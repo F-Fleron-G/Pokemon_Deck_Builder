@@ -64,11 +64,19 @@ function DeckPage() {
   console.log("Deck Recommendations:", deckData.recommendations);
   }, [deckData.recommendations]);
 
-  const handleAddPokemon = async (pokemonId) => {
+  const handleAddPokemon = async (rec) => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please log in first");
+      return;
+    }
+
+    const pokemonId = rec?.id || rec?.pokemon_id;
+
+    if (!pokemonId) {
+      console.error("Error: Pokémon ID is missing from data:", rec);
+      alert("Failed to add Pokémon. No valid ID found.");
       return;
     }
 
@@ -98,14 +106,13 @@ const handleAddTrainer = async (trainerName) => {
     console.log("Sending Trainer payload:", payload);
 
     try {
-    const response = await axios.post("http://localhost:8000/deck/", payload, {
+    await axios.post("http://localhost:8000/deck/", payload, {
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     });
 
-    console.log("✅ Trainer added successfully:", response.data);
     fetchDeck();
   } catch (error) {
-    console.error("❌ Error adding Trainer:", error.response ? error.response.data : error);
+    console.error("Error adding Trainer:", error.response ? error.response.data : error);
   }
 };
 
@@ -130,7 +137,6 @@ const handleAddEnergy = async (energyType) => {
     alert("Failed to add the Energy card to your deck.");
   }
 };
-
 
   const handleDeletePokemon = async (pokemonId) => {
     try {
@@ -189,6 +195,16 @@ const handleAddEnergy = async (energyType) => {
   const totalDeckCount = deckData.deck.pokemon.length
     + deckData.deck.trainers.length
     + deckData.deck.energy.length;
+
+  const trainerRecommendations = deckData.recommendations
+  .filter(rec => rec.type === "trainer")
+  .slice(0, 5);
+
+  const energyRecommendations = deckData.recommendations
+  .filter(rec => rec.type === "energy")
+  .slice(0, 5);
+
+  const topTrainerEnergyRecommendations = [...trainerRecommendations, ...energyRecommendations];
 
   return (
     <>
@@ -249,7 +265,8 @@ const handleAddEnergy = async (energyType) => {
                     {rec.message && (
                       <p style={{ fontStyle: "italic" }}>{rec.message}</p>
                     )}
-                    <button onClick={() => handleAddPokemon(rec.id)}>Add</button>
+                       <button onClick={() => handleAddPokemon(rec)}>Add</button>
+
                   </div>
                 ))}
               </div>
@@ -263,7 +280,7 @@ const handleAddEnergy = async (energyType) => {
                 <button
                   disabled={
                   deckData.recommendations.filter(r => r.type === "pokemon").length === 0 ||
-                  (recIndexPokemon + 2) * 200 >= deckData.recommendations.filter(r => r.type
+                  (recIndexPokemon + 2) * 200>= deckData.recommendations.filter(r => r.type
                    === "pokemon").length * 200}
                   onClick={() => setRecIndexPokemon((prev) => prev + 1)}
                 >
@@ -276,9 +293,8 @@ const handleAddEnergy = async (energyType) => {
          <h3>Suggested Trainer & Energy</h3>
           <div className="recommendations-slider-container">
            <div className="recommendations-slider" style={{ transform:
-            `translateY(${-recIndexTrainerEnergy * 420}px)`,}}>
-            {deckData.recommendations.filter(rec => rec.type === "trainer"
-             || rec.type === "energy").map((rec, idx) => (
+            `translateY(${-recIndexTrainerEnergy * 450}px)`,}}>
+             {topTrainerEnergyRecommendations.map((rec, idx) => (
             <div key={idx} className="recommendation-card">
             {rec.tcg_image_url && (
               <img
@@ -290,7 +306,7 @@ const handleAddEnergy = async (energyType) => {
             <p style={{ color: "#262626", fontWeight: "bold", fontSize: "20px" }}>{rec.name}</p>
             {rec.message && <p style={{ fontStyle: "italic" }}>{rec.message}</p>}
             <button onClick={() => rec.type === "trainer" ? handleAddTrainer(rec.name)
-            : handleAddEnergy(rec.id)}> Add </button>
+            : handleAddEnergy(rec.name)}> Add </button>
             </div>
             ))}
            </div>
