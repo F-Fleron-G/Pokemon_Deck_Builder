@@ -176,6 +176,9 @@ def decode_token(token: str):
         """
 
     try:
+        if token.startswith("Bearer "):
+            token = token.replace("Bearer ", "")
+
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload.get("sub")
     except jwt.ExpiredSignatureError:
