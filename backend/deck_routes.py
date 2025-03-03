@@ -122,33 +122,32 @@ def get_user_deck(user: User = Depends(get_current_user),
     }
 
 
-@router.post("/")
-def save_deck(deck_update: DeckUpdate,
-              db: Session = Depends(get_db),
-              token: str = Depends(get_api_key)):
+@router.post("/", openapi_extra={"security": [{"BearerAuth": []}]})
+def save_deck(
+    deck_update: DeckUpdate,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)):
+
     """
         Updates the user's deck by adding new Pokémon, Trainer, and Energy cards.
         It avoids duplicate entries and returns updated deck details including
         the deck score and dynamic recommendations.
+
         Args:
             deck_update (DeckUpdate): The update payload with Pokémon IDs, Trainer names,
-            and Energy types.
+                and Energy types.
+            user (User): The currently authenticated user object (provided by get_current_user).
             db (Session): The database session.
-            token (str): The API key token from the Authorization header.
+
         Returns:
-            dict: A dictionary with a success message, the newly added cards, deck score,
-            and recommendations.
+            dict: A dictionary containing:
+                - "message": A success message upon updating the deck,
+                - "added_pokemon": Any newly added Pokémon details,
+                - "added_trainers": Any newly added Trainer cards,
+                - "added_energy": Any newly added Energy cards,
+                - "deck_score": The updated synergy score,
+                - "recommendations": Dynamic suggestions to improve the deck.
     """
-
-    if " " in token:
-        actual_token = token.split(" ")[1]
-    else:
-        actual_token = token
-
-    user_email = decode_token(actual_token)
-    user = db.query(User).filter(and_(User.email == user_email)).first()
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid authentication")
 
     user_deck = db.query(Deck).filter(and_(Deck.user_id == user.id)).first()
     if not user_deck:

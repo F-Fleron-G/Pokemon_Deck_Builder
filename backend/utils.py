@@ -114,7 +114,7 @@ def fetch_trainer_data(trainer_name: str):
     """
 
     query = "supertype:Trainer"
-    url = f"{TCG_API_URL}?q={query}&pageSize=100"
+    url = f"{TCG_API_URL}?q={query}&pageSize=15"
     print("Fetching trainer data with URL:", url)
     response = requests.get(url, headers=TCG_API_HEADERS)
     print("Status Code:", response.status_code)
@@ -154,7 +154,7 @@ def fetch_energy_data(energy_type: str):
     """
 
     query = "supertype:Energy"
-    url = f"{TCG_API_URL}?q={query}&pageSize=100"
+    url = f"{TCG_API_URL}?q={query}&pageSize=15"
     print("Fetching energy data with URL:", url)
     response = requests.get(url, headers=TCG_API_HEADERS)
     print("Status Code:", response.status_code)
