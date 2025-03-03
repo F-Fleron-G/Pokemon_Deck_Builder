@@ -144,6 +144,15 @@ uvicorn main:app --reload
 ```
 Open your browser and visit http://127.0.0.1:8000 to access the app.
 
+### Step 6: Front-End Setup (Optional)
+
+If you'd like to run the React front end locally, follow these steps:
+
+1. `cd frontend` (assuming your frontend folder is named "frontend")
+2. `npm install`
+3. `npm start`
+4. Open [http://localhost:3000](http://localhost:3000) to access the front end. By default, it will communicate with the backend running at [http://localhost:8000](http://localhost:8000).
+
 ---
 
 ## Endpoints Overview
@@ -154,8 +163,8 @@ Authentication (JWT-based):
 
 Deck Management (Requires JWT):
 
-- GET /user/deck - Retrieve the current user’s deck along with counts and recommendations.
-- POST /user/deck - Create or update the user’s deck.
+- GET /deck - Retrieve the current user’s deck along with counts and recommendations.
+- POST /deck - Create or update the user’s deck.
   Request Payload Example:
 ```json
 {
@@ -164,16 +173,15 @@ Deck Management (Requires JWT):
   "energy_types": ["Fire", "Water"]
 }
 ```
-- DELETE /user/deck/{pokemon_id} - Remove a specific Pokémon from the user’s deck.
+- DELETE /deck/{pokemon_id} - Remove a specific Pokémon from the user’s deck.
+- **DELETE /deck/trainer/{trainer_id}** – Remove a Trainer card
+- **DELETE /deck/energy/{energy_id}** – Remove an Energy card
 
 ##  TCG Data Endpoints
-- POST /tcg/trainers: Fetch external Trainer cards.
-- GET /tcg/trainers/{trainer_id}: Retrieve a Trainer card by ID.
-- GET /tcg/trainers: List all Trainer cards.
-- PUT /tcg/trainers/{trainer_id}: Update a Trainer card.
-- DELETE /tcg/trainers/{trainer_id}: Delete a Trainer card.
-- GET /tcg/external/trainers: Fetch Trainer cards from the TCG API.
-- (Similar endpoints exist for Energy cards.)
+- **GET /tcg/external/trainers** – Fetch Trainer cards from the TCG API
+- **GET /tcg/external/energy** – Fetch Energy cards from the TCG API
+
+*(All older Trainer/Energy CRUD endpoints have been removed in favor of local deck storage + direct external fetch.)*
 
 ---
 
@@ -183,7 +191,8 @@ Deck Management (Requires JWT):
 - Front-End Enhancements: Refine the UI/UX with vertical recommendation sliders, card overlays, and improved deck
   counters.
 - Deployment: Host the application on platforms like Render, AWS, or PythonAnywhere.
-
+- It is planned to cache or locally store TCG data in the trainers and energy tables to reduce load times. 
+  Currently, data is fetched from the TCG API on demand, which may be slower for large sets.
 ---
 
 ## Credits
