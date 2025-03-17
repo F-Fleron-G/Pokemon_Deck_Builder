@@ -114,7 +114,7 @@ def fetch_trainer_data(trainer_name: str):
     """
 
     query = "supertype:Trainer"
-    url = f"{TCG_API_URL}?q={query}&pageSize=15"
+    url = f"{TCG_API_URL}?q={query}&pageSize=250"
     print("Fetching trainer data with URL:", url)
     response = requests.get(url, headers=TCG_API_HEADERS)
     print("Status Code:", response.status_code)
@@ -154,7 +154,7 @@ def fetch_energy_data(energy_type: str):
     """
 
     query = "supertype:Energy"
-    url = f"{TCG_API_URL}?q={query}&pageSize=15"
+    url = f"{TCG_API_URL}?q={query}&pageSize=250"
     print("Fetching energy data with URL:", url)
     response = requests.get(url, headers=TCG_API_HEADERS)
     print("Status Code:", response.status_code)
@@ -166,7 +166,7 @@ def fetch_energy_data(energy_type: str):
         return None
     matches = []
     for card in data["data"]:
-        if energy_type.lower() in card.get("name", "").lower():
+        if energy_type.lower() in " ".join(card.get("subtypes", [])).lower():
             image_url = card.get("images", {}).get("large")
             if image_url:
                 matches.append({
@@ -175,6 +175,6 @@ def fetch_energy_data(energy_type: str):
                     "tcg_image_url": image_url,
                     "tcg_set": card.get("set", {}).get("name"),
                     "tcg_rarity": card.get("rarity"),
-                    "energy_type": energy_type
+                    "energy_type": card.get("subtypes", [])[0] if card.get("subtypes") else ""
                 })
     return matches if matches else None

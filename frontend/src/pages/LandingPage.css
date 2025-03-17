@@ -61,7 +61,6 @@
 .clickable-image {
   cursor: pointer;
   width: 400px;
-  border-radius: 10px;
   transition: transform 0.3s ease;
 }
 
@@ -71,7 +70,7 @@
 
 .about-image {
   width: 300px;
-  border: 3px solid black;
+  border: 2px solid black;
   background: #e5e5e5;
   box-shadow: 0 12px 26px rgba(0, 0, 0, 10);
   height: auto;
@@ -81,7 +80,8 @@
 .cta-button {
   background-color: #e5e5e5;
   color: #262626;
-  border: 3px solid #262626;
+  border: 2px solid #262626;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   padding: 12px 25px;
   font-size: 1rem;
   font-family: 'Comic Sans MS', sans-serif;
@@ -92,12 +92,14 @@
 
 .cta-button:hover {
   background-color: #bebdbd;
+  transform: scale(1.05);
 }
 
 .back-to-top {
   background-color: #e5e5e5;
   color: #262626;
-  border: 3px solid #262626;
+  border: 2px solid #262626;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   padding: 12px 25px;
   font-size: 1rem;
   font-family: 'Comic Sans MS', sans-serif;
@@ -108,6 +110,7 @@
 
 .back-to-top:hover {
   background-color: #bebdbd;
+  transform: scale(1.05);
 }
 
 @media (max-width: 768px) {
@@ -124,9 +127,15 @@
   .text-column p {
     font-size: 1rem;
   }
-  .clickable-image, .about-image {
-    width: 80%;
-    max-width: 300px;
+  .clickable-image {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .about-image {
+    width: 100%;
+    max-width: 280px;
     margin: 0 auto;
   }
 }

@@ -126,7 +126,7 @@ def get_user_deck(user: User = Depends(get_current_user),
 def save_deck(
     deck_update: DeckUpdate,
     user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)):
+        db: Session = Depends(get_db)):
 
     """
         Updates the user's deck by adding new Pokémon, Trainer, and Energy cards.
@@ -159,6 +159,9 @@ def save_deck(
     db.commit()
 
     added_pokemon = []
+    added_trainers = []
+    added_energy = []
+
     existing_pokemon_ids = {
         p.pokemon_id for p in db.query(DeckPokemon)
         .filter(and_(DeckPokemon.deck_id == user_deck.id)).all()
@@ -184,60 +187,58 @@ def save_deck(
                     "image_url": existing_pokemon.image_url
                 })
 
-    added_trainers = []
     existing_trainer_ids = {
         t.trainer_id for t in db.query(DeckTrainer)
         .filter(and_(DeckTrainer.deck_id == user_deck.id)).all()
     }
-
     for trainer_name in deck_update.trainer_names:
-        t_data = fetch_trainer_data(trainer_name)
-        if t_data:
-            selected_trainer = t_data[0]
-            existing_trainer = db.query(Trainer).filter(and_(
-                Trainer.tcg_id == selected_trainer["tcg_id"]
-            )).first()
-            if not existing_trainer:
-                new_trainer = Trainer(**selected_trainer)
-                db.add(new_trainer)
-                db.commit()
-                db.refresh(new_trainer)
-                trainer_id = new_trainer.id
-            else:
-                trainer_id = existing_trainer.id
+        existing_trainer = db.query(Trainer) \
+            .filter(Trainer.name.ilike(f"%{trainer_name}%")).first()
+        if not existing_trainer:
+            continue
+        trainer_id = existing_trainer.id
+        if trainer_id not in existing_trainer_ids:
+            db.add(DeckTrainer(deck_id=user_deck.id, trainer_id=trainer_id))
+            added_trainers.append({
+                "name": existing_trainer.name,
+                "tcg_image_url": existing_trainer.tcg_image_url
+            })
 
-            if trainer_id not in existing_trainer_ids:
-                db.add(DeckTrainer(deck_id=user_deck.id, trainer_id=trainer_id))
-                added_trainers.append(selected_trainer)
-
-    added_energy = []
     existing_energy_ids = {
         e.energy_id for e in db.query(DeckEnergy)
         .filter(and_(DeckEnergy.deck_id == user_deck.id)).all()
     }
     for energy_type in deck_update.energy_types:
-        e_data = fetch_energy_data(energy_type)
-        if e_data:
-            selected_energy = e_data[0]
-            existing_energy = db.query(Energy).filter(and_(
-                Energy.tcg_id == selected_energy["tcg_id"]
-            )).first()
-            if not existing_energy:
-                new_energy = Energy(**selected_energy)
-                db.add(new_energy)
-                db.commit()
-                db.refresh(new_energy)
-                energy_id = new_energy.id
-            else:
-                energy_id = existing_energy.id
-
-            if energy_id not in existing_energy_ids:
-                db.add(DeckEnergy(deck_id=user_deck.id, energy_id=energy_id))
-                added_energy.append(selected_energy)
+        existing_energy = db.query(Energy) \
+            .filter(and_(Energy.energy_type == energy_type)).first()
+        if not existing_energy:
+            continue
+        energy_id = existing_energy.id
+        if energy_id not in existing_energy_ids:
+            db.add(DeckEnergy(deck_id=user_deck.id, energy_id=energy_id))
+            added_energy.append({
+                "name": existing_energy.name,
+                "tcg_image_url": existing_energy.tcg_image_url
+            })
 
     db.commit()
 
-    deck_score = calculate_deck_score(added_pokemon, added_trainers, added_energy)
+    pokemon_entries = db.query(DeckPokemon).filter(and_(DeckPokemon.deck_id == user_deck.id)).all()
+    trainer_entries = db.query(DeckTrainer).filter(and_(DeckTrainer.deck_id == user_deck.id)).all()
+    energy_entries = db.query(DeckEnergy).filter(and_(DeckEnergy.deck_id == user_deck.id)).all()
+
+    full_pokemon_list = db.query(Pokemon).filter(
+        Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])
+    ).all()
+    full_trainer_list = db.query(Trainer).filter(
+        Trainer.id.in_([entry.trainer_id for entry in trainer_entries])
+    ).all()
+    full_energy_list = db.query(Energy).filter(
+        Energy.id.in_([entry.energy_id for entry in energy_entries])
+    ).all()
+
+    deck_score = calculate_deck_score(full_pokemon_list, full_trainer_list, full_energy_list)
+
     recommendations = generate_recommendations(user_deck, db)
 
     return {
@@ -282,8 +283,8 @@ def remove_trainer_from_deck(trainer_id: int,
                              user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
     """
-    Removes a specified Trainer from the user's deck.
-    Args:
+        Removes a specified Trainer from the user's deck.
+        Args:
             trainer_id (int): The ID of the Trainer to remove.
             user (User): The current authenticated user.
             db (Session): The database session.
@@ -309,8 +310,8 @@ def remove_energy_from_deck(energy_id: int,
                             user: User = Depends(get_current_user),
                             db: Session = Depends(get_db)):
     """
-    Removes a specified Trainer from the user's deck.
-    Args:
+        Removes a specified Trainer from the user's deck.
+        Args:
             energy_id (int): The ID of the Energy to remove.
             user (User): The current authenticated user.
             db (Session): The database session.

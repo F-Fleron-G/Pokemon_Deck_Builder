@@ -45,101 +45,60 @@ def generate_recommendations(user_deck, db: Session):
 
     recommendations = []
 
-    pokemon_entries = db.query(DeckPokemon).filter(and_(
-        DeckPokemon.deck_id == user_deck.id
-    )).all()
-    trainer_entries = db.query(DeckTrainer).filter(and_(
-        DeckTrainer.deck_id == user_deck.id
-    )).all()
-    energy_entries = db.query(DeckEnergy).filter(and_(
-        DeckEnergy.deck_id == user_deck.id
-    )).all()
+    pokemon_entries = (db.query(DeckPokemon)
+                       .filter(and_(DeckPokemon.deck_id == user_deck.id)).all())
+    trainer_entries = (db.query(DeckTrainer)
+                       .filter(and_(DeckTrainer.deck_id == user_deck.id)).all())
+    energy_entries = (db.query(DeckEnergy)
+                      .filter(and_(DeckEnergy.deck_id == user_deck.id)).all())
 
-    pokemon_list = db.query(Pokemon).filter(
-        Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])
-    ).all()
-    trainer_list = db.query(Trainer).filter(
-        Trainer.id.in_([entry.trainer_id for entry in trainer_entries])
-    ).all()
-    energy_list = db.query(Energy).filter(
-        Energy.id.in_([entry.energy_id for entry in energy_entries])
-    ).all()
+    pokemon_list = (db.query(Pokemon)
+                    .filter(Pokemon.id.in_([entry.pokemon_id for entry in pokemon_entries])).all())
+    trainer_list = (db.query(Trainer)
+                    .filter(Trainer.id.in_([entry.trainer_id for entry in trainer_entries])).all())
+    energy_list = (db.query(Energy)
+                   .filter(Energy.id.in_([entry.energy_id for entry in energy_entries])).all())
 
     deck_score = calculate_deck_score(pokemon_list, trainer_list, energy_list)
 
     deck_types = [fetch_pokemon_data(p.id).get("types", []) for p in pokemon_list]
     flat_types = [t for sublist in deck_types for t in sublist]
-
     strengths, weaknesses = get_strengths_and_weaknesses(flat_types)
     weaknesses_count = {w: weaknesses.count(w) for w in set(weaknesses)}
 
-    print(f"Weaknesses found: {weaknesses_count}")
-
     for weak_type, count in weaknesses_count.items():
-        strong_pokemon_name = fetch_pokemon_by_strength(weak_type)
-
-        print(f"Checking for strong Pokémon against {weak_type}: {strong_pokemon_name}")
-
-        if strong_pokemon_name and strong_pokemon_name["name"] != "No strong Pokémon found":
+        strong_pokemon = fetch_pokemon_by_strength(weak_type)
+        if strong_pokemon and strong_pokemon["name"] != "No strong Pokémon found":
             rec_obj = {
-                "id": strong_pokemon_name["id"],
+                "id": strong_pokemon["id"],
                 "type": "pokemon",
-                "name": strong_pokemon_name["name"],
-                "tcg_image_url": (
-                    f"https://img.pokemondb.net/artwork/large/{strong_pokemon_name['name'].lower()}.jpg"
-                ),
-                "message": (
-                    f"Your deck has {count} Pokémon weak to {weak_type}. "
-                    f"Consider adding {strong_pokemon_name['name']}!"
-                )
+                "name": strong_pokemon["name"],
+                "tcg_image_url": f"https://img.pokemondb.net/artwork/large/{strong_pokemon['name'].lower()}.jpg",
+                "message": f"Your deck has {count} Pokémon weak to {weak_type}. Consider adding {strong_pokemon['name']}!"
             }
             recommendations.append(rec_obj)
 
-        external_trainers = fetch_trainer_data("")
-        if external_trainers:
-            deck_trainer_names = {trainer.name.lower() for trainer in trainer_list}
-            for ext_trainer in external_trainers:
-                if ext_trainer["name"].lower() not in deck_trainer_names:
-                    rec_obj = {
-                        "type": "trainer",
-                        "name": ext_trainer["name"],
-                        "tcg_image_url": ext_trainer["tcg_image_url"],
-                        "message": f"Consider adding {ext_trainer['name']} to improve your deck!"
-                    }
-                    recommendations.append(rec_obj)
-
-        external_energy = fetch_energy_data("")
-        if external_energy:
-            deck_energy_names = {energy.name.lower() for energy in energy_list}
-            for ext_energy in external_energy:
-                if ext_energy["name"].lower() not in deck_energy_names:
-                    rec_obj = {
-                        "type": "energy",
-                        "name": ext_energy["name"],
-                        "tcg_image_url": ext_energy["tcg_image_url"],
-                        "message": f"Consider adding more {ext_energy['name']} for better balance!"
-                    }
-                    recommendations.append(rec_obj)
-
-    if len(trainer_list) > 0:
-        for trainer in trainer_list:
-            rec_obj = {
+    cached_trainers = db.query(Trainer).all()
+    deck_trainer_names = {t.name.lower() for t in trainer_list}
+    for trainer in cached_trainers:
+        if trainer.name.lower() not in deck_trainer_names:
+            recommendations.append({
                 "type": "trainer",
                 "name": trainer.name,
                 "tcg_image_url": trainer.tcg_image_url,
                 "message": f"Consider adding {trainer.name} to improve your deck!"
-            }
-            recommendations.append(rec_obj)
+            })
 
-    if len(energy_list) > 0:
-        for energy in energy_list:
-            rec_obj = {
+    cached_energy = db.query(Energy).all()
+    deck_energy_names = {e.name.lower() for e in energy_list}
+    for energy in cached_energy:
+        if energy.name.lower() not in deck_energy_names:
+            recommendations.append({
                 "type": "energy",
                 "name": energy.name,
                 "tcg_image_url": energy.tcg_image_url,
                 "message": f"Consider adding more {energy.name} for better balance!"
-            }
-            recommendations.append(rec_obj)
+            })
 
     if deck_score < 50:
         recommendations.append({
@@ -172,8 +131,8 @@ pokemon_with_images_cache = set()
 
 def has_valid_image(pokemon_name):
     """
-    Check if a Pokémon has an image in PokémonDB.
-    Uses caching to prevent repeated slow requests.
+        Check if a Pokémon has an image in PokémonDB.
+        Uses caching to prevent repeated slow requests.
     """
 
     image_url = f"https://img.pokemondb.net/artwork/large/{pokemon_name.lower()}.jpg"
@@ -190,8 +149,8 @@ def has_valid_image(pokemon_name):
 
 def fetch_pokemon_by_strength(weak_type: str):
     """
-    Fetch a random Pokémon that is strong against the given 'weak_type'.
-    Ensures that only Pokémon with a valid image in PokémonDB are selected.
+        Fetch a random Pokémon that is strong against the given 'weak_type'.
+        Ensures that only Pokémon with a valid image in PokémonDB are selected.
     """
     strong_types = [
         p_type for p_type, matchups in type_chart.items() if weak_type in matchups["weak_to"]

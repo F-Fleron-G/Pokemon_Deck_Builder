@@ -4,6 +4,7 @@ import axios from "axios";
 import "./LoginPage.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import loginFormImage from "../assets/login_form_image.png";
 
 const API_URL = "http://localhost:8000";
 
@@ -19,8 +20,11 @@ function LoginPage() {
     try {
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       localStorage.setItem("token", response.data.access_token);
+      axios.post(`${API_URL}/tcg/external/cache`)
+      .then(() => console.log("TCG data cached successfully."))
+      .catch((err) => console.error("Error caching TCG data:", err));
       alert("Login successful!");
-      navigate("/home");
+      navigate("/deck");
     } catch (err) {
       setError(err.response?.data?.detail || "Login failed.");
     }
@@ -32,7 +36,14 @@ function LoginPage() {
       <div className="login-page">
         <section className="log-in-section">
           <div className="login-auth-container">
-            <h2>Login</h2>
+            <div className="login-auth-header">
+              <img
+                src={loginFormImage}
+                alt="Pokemon Klefki"
+                className="login-form-image"
+              />
+              <h2>Login</h2>
+            </div>
             {error && <p className="login-error-text">{error}</p>}
             <form onSubmit={handleLogin}>
               <div className="login-auth-field">

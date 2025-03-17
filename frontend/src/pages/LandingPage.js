@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./LandingPage.css";
-
 import deckImage from "../assets/deck_image.png";
 import loginImage from "../assets/login_image.png";
 import aboutImage from "../assets/about_image.png";
-
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
@@ -42,7 +40,7 @@ function LandingPage() {
             </p>
             <button
               className="cta-button"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/deck")}
             >
               Go To Deck Builder
             </button>
@@ -52,7 +50,7 @@ function LandingPage() {
               src={deckImage}
               alt="Deck Building"
               className="clickable-image"
-              onClick={() => navigate("/home")}
+              onClick={() => navigate("/deck")}
             />
           </div>
         </div>

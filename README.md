@@ -3,38 +3,51 @@
 # Pokémon Deck Builder
 
 
-Welcome to the **Pokémon Deck Builder**, a FastAPI-based application that helps kids build and optimize their Pokémon
+Welcome to the **Pokémon Deck Builder**, a FastAPI-based application that helps kids build and optimise their Pokémon
 battle decks! This project uses PostgreSQL to store user accounts, detailed Pokémon data, and user decks—drawing data
 from both the PokéAPI and the Pokémon TCG API.
 The front end (built with React) gives users an interactive experience to create, manage, and improve their decks.
 
 ---
 
+## Table of Contents
+1. [Features](#features)
+2. [Technologies](#technologies)
+3. [Project Structure](#project-structure)
+4. [Setup Instructions](#setup-instructions)
+5. [Endpoints Overview](#endpoints-overview)
+6. [Future Enhancements](#future-enhancements)
+7. [Credits](#credits)
+8. [License](#license)
+
+---
+
 ## Features
 
 - **Pokémon Data**: 
-  - Retrieves detailed Pokémon stats, types, moves, abilities, and calculates strengths & weaknesses (see `utils.py`
-    and `type_matchups.py`).
-  - Displays attractive Pokémon images from PokémonDB.net.
+  - Retrieves detailed Pokémon stats (types, moves, abilities, etc.) from PokéAPI.  
+  - Displays attractive Pokémon images from PokémonDB.net.  
+  - Automatically calculates type strengths & weaknesses.
+  
   
 - **Deck Building & Management**: 
   - **Authentication**: Secure signup and login using JWT (implemented in `auth.py`).
   - **Deck CRUD Operations**: Create, update, and delete cards from decks (see `deck_routes.py`).
-  - **Dynamic Recommendations**: Get actionable suggestions to improve deck balance based on weaknesses and synergy
-    (see `recommendations.py`).
+  - **Dynamic Recommendations**: Suggestions based on deck synergy & weaknesses (see `recommendations.py`).
+  
   
 - **TCG Integration**:
-  - Fetch and display Trainer and Energy card details from the Pokémon TCG API (handled in `tcg_routes.py`).
-  
+  - Fetch Trainer and Energy card details from the Pokémon TCG API (handled in `tcg_routes.py`).
+
+
 - **Front-End Experience**:
-  - Interactive pages built with React (files in `frontend/src/pages` and `frontend/src/components`).
-  - Clean, kid-friendly interface with visual cues (e.g., deck counters, overlays for cards to be replaced,
-    vertical sliders for recommendations).
+  - Interactive React-based UI (in `frontend/src/`).  
+  - Kid-friendly interface with deck counters, recommended cards, synergy scores, etc.
+  
   
 - **Deck Strength Scoring**:
-  - A future enhancement will evaluate deck balance and display an overall deck strength as a percentage or visual
-    meter.
-
+  - Points-based system for quick synergy evaluation (see `synergy.py`).
+  
 
 ---
 
@@ -44,8 +57,11 @@ The front end (built with React) gives users an interactive experience to create
 - **Database**: PostgreSQL
 - **ORM**: SQLAlchemy
 - **Authentication**: JSON Web Tokens (JWT)
-- **Front End**: React
-- **Deployment**: (Planned for future development)
+- **Front End**: React (Axios, React Router, etc.)
+- **Test Framework**: Pytest
+- **Deployment**: Backend is live on Render | Frontend is planned upon completion.
+
+Refer to `requirements.txt` for all Python dependencies.
 
 ---
 
@@ -53,48 +69,68 @@ The front end (built with React) gives users an interactive experience to create
 
 ### Backend
 - **main.py**:  
-  - Initializes the FastAPI app, configures CORS and custom OpenAPI docs, sets up the database (using `database.py`), and includes routers for authentication (`auth.py`), deck management (`deck_routes.py`), and TCG data (`tcg_routes.py`).
+  - Initializes the FastAPI app, configures CORS and custom OpenAPI docs, sets up the database (using `database.py`),
+  and includes routers for authentication (`auth.py`), deck management (`deck_routes.py`),
+  and TCG data (`tcg_routes.py`).
+  
 
 - **auth.py**:  
-  - Contains endpoints for signup and login, functions to hash and verify passwords, and JWT token creation and decoding.
+  - Endpoints for signup/login, handling password hashing (bcrypt), JWT creation, etc.
+  
   
 - **database.py**:  
-  - Configures the PostgreSQL connection, creates the SQLAlchemy engine and session, and runs table creation.
+  - Sets up PostgreSQL connection, SQLAlchemy engine, and session. Defines `create_tables()` to initialize DB tables.
+  
   
 - **models.py**:  
-  - Defines the data models (User, Pokemon, Deck, DeckPokemon, Trainer, Energy, DeckTrainer, DeckEnergy) used throughout the application.
+  - Contains SQLAlchemy ORM models (User, Pokemon, Deck, DeckPokemon, Trainer, Energy, association tables).
+  
   
 - **schemas.py**:  
-  - Contains Pydantic models for data validation (for user registration, login, and deck updates).
+  - Pydantic models for data validation and auto-generated docs.
+  
   
 - **utils.py**:  
-  - Provides utility functions for fetching Pokémon data from the PokéAPI and TCG card data from the Pokémon TCG API.
+  - Helper modules for fetching data from PokéAPI / TCG API, mapping type strengths and weaknesses, etc.
+  
   
 - **type_matchups.py**:  
   - Contains a type chart with strengths and weaknesses for Pokémon types and a helper function to calculate these.
   
+  
 - **synergy.py**:  
-  - Calculates the deck score based on the number of Pokémon, Trainer, and Energy cards in a fun, points-based system.
+  - Computes deck synergy score.
+  
   
 - **deck_routes.py**:  
-  - Handles deck management endpoints, including getting the user deck, saving/updating the deck, and removing cards.
+  - Manages deck-building routes (CRUD operations, synergy scoring, recommendations).
+  
   
 - **recommendations.py**:  
-  - Generates actionable deck recommendations based on the current deck composition and weaknesses.
+  - Generates actionable suggestions to improve decks based on synergy and type weaknesses.
+  
 
 - **tcg_routes.py**:  
-  - Manages endpoints for fetching and manipulating Trainer and Energy cards using the TCG API.
+  - Fetches Trainer/Energy data from the Pokémon TCG API, optionally caches them in local tables.
+  
+  
+- **test_main.py**  
+  - Simple Pytest-based tests for the main FastAPI endpoints.
 
 ### Frontend
 - **React Application** (located in `frontend/src/`):
-  - **Pages**:  
-    - **HomePage.js**: The deck builder page where users can scroll through cards, see detailed Pokémon information (including weaknesses), and add cards to their deck.
+  - **Pages**:
+    - **HomePage.js**: The deck builder page where users can scroll through cards, see detailed Pokémon
+    information (including weaknesses), and add cards to their deck.
     - **DeckPage.js**: Displays the user’s final deck in a two-column layout.  
-      - **Left Column**: Shows current Pokémon, Trainer, and Energy cards with counters (e.g., "11/20 Pokémon") and delete buttons. Cards that need replacement are visually marked.
-      - **Right Column**: Contains a vertical slider with recommended cards to add and a deck strength score (shown as a percentage or visual meter).
+      - **Left Column**: Shows current Pokémon, Trainer, and Energy cards with counters (e.g., "11/20 Pokémon")
+      and delete buttons. Cards that need replacement are visually marked. 
+      - **Right Column**: Contains a vertical slider with recommended cards to add and a deck strength score
+      (shown as a percentage or visual meter).
     - **LandingPage.js**, **LoginPage.js**, **SignUpPage.js**: Handle user navigation, authentication, and onboarding.
   - **Components**:
-    - **Header.js** and **Footer.js**: Provide consistent navigation and include buttons like "Back to Top" and "Back to Building Deck".
+    - **Header.js** and **Footer.js**: Provide consistent navigation and include buttons like "Back to Top"
+    and "Back to Building Deck".
   - **Assets**:  
     - Images and CSS files for styling the pages and components.
 
@@ -104,8 +140,8 @@ The front end (built with React) gives users an interactive experience to create
 
 ### Prerequisites
 
-- Python 3.10+ installed on your system.
-- PostgreSQL installed and running.
+- **Python 3.10+** installed on your system.
+- **PostgreSQL** installed and running.
 - A GitHub account (if you’d like to clone this repo).
 
 ### Step 1: Clone the Repository
@@ -142,16 +178,18 @@ Run the FastAPI application:
 ```bash
 uvicorn main:app --reload
 ```
-Open your browser and visit http://127.0.0.1:8000 to access the app.
+Visit http://127.0.0.1:8000 to see the welcome message. 
+Swagger docs are at http://127.0.0.1:8000/docs.
 
-### Step 6: Front-End Setup (Optional)
+### Step 6: Run the Front End (Optional)
 
-If you'd like to run the React front end locally, follow these steps:
+If you’d like to run the React app:
 
-1. `cd frontend` (assuming your frontend folder is named "frontend")
+1. `cd frontend` (assuming your frontend folder is named "frontend").
 2. `npm install`
 3. `npm start`
-4. Open [http://localhost:3000](http://localhost:3000) to access the front end. By default, it will communicate with the backend running at [http://localhost:8000](http://localhost:8000).
+4. Open http://localhost:3000 to access the front end, which communicates with the FastAPI app
+on http://localhost:8000.
 
 ---
 
@@ -163,48 +201,45 @@ Authentication (JWT-based):
 
 Deck Management (Requires JWT):
 
-- GET /deck - Retrieve the current user’s deck along with counts and recommendations.
-- POST /deck - Create or update the user’s deck.
-  Request Payload Example:
-```json
-{
-  "pokemon_ids": [1, 4, 7],
-  "trainer_names": ["Tropical Wind", "Pokémon Fan Club"],
-  "energy_types": ["Fire", "Water"]
-}
-```
-- DELETE /deck/{pokemon_id} - Remove a specific Pokémon from the user’s deck.
-- **DELETE /deck/trainer/{trainer_id}** – Remove a Trainer card
-- **DELETE /deck/energy/{energy_id}** – Remove an Energy card
+- GET /deck - get current user’s deck & synergy score.
+- POST /deck - add/update cards in the user’s deck.
+- DELETE /deck/pokemon/{pokemon_id} - remove a Pokémon.
+- DELETE /deck/trainer/{trainer_id} - remove a Trainer.
+- DELETE /deck/energy/{energy_id} - remove an Energy.
 
 ##  TCG Data Endpoints
-- **GET /tcg/external/trainers** – Fetch Trainer cards from the TCG API
-- **GET /tcg/external/energy** – Fetch Energy cards from the TCG API
-
-*(All older Trainer/Energy CRUD endpoints have been removed in favor of local deck storage + direct external fetch.)*
+- **GET /tcg/external/trainers** – Fetch Trainer cards from the TCG API.
+- **GET /tcg/external/energy** – Fetch Energy cards from the TCG API.
+- POST /tcg/external/cache - cache trainer/energy data in DB.
 
 ---
 
 ## Future Enhancements
-- Deck Synergy & Scoring: Implement an algorithm to evaluate deck balance and offer direct suggestions.
-- Advanced TCG Data: Expand filtering and detailed card data.
-- Front-End Enhancements: Refine the UI/UX with vertical recommendation sliders, card overlays, and improved deck
-  counters.
-- Deployment: Host the application on platforms like Render, AWS, or PythonAnywhere.
-- It is planned to cache or locally store TCG data in the trainers and energy tables to reduce load times. 
-  Currently, data is fetched from the TCG API on demand, which may be slower for large sets.
+- Deck Synergy & Scoring: 
+  - Continue refining synergy algorithms for deeper strategy insights.
+- Advanced TCG Data:
+  - More detailed local caching, advanced search/filter, and a bigger card library.
+- Deployment:
+  - Plans to include frontend hosted on Render once the complete production config is finalised.
+- UI/UX Improvements:
+  - Additional visuals, drag-and-drop deck editing, etc.
 ---
 
 ## Credits
-- PokéAPI for Pokémon stats and type data.
-- Pokémon TCG API for card images, sets, and rarity data.
-- PokémonDB.net: For the high-quality Pokémon images used in the application. 
-  (Used under fair use guidelines for non-commercial, educational purposes. Please see PokémonDB.net Terms of Use
-  for more details.)
+- PokéAPI for Pokémon data.
+- Pokémon TCG API for trainer/energy card data.
+- PokémonDB.net for high-quality Pokémon images (used under fair use).
 - Banner image from Wallpapers.com.
-- Built by Frederic G. Fleron Grignard.
+- Built by Frederic G. Fleron Grignard and his creative son!
 
 ---
 
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+## Licence
+This project is licensed under the MIT Licence. 
+See [LICENCE](LICENCE) for details.
+
+---
+
+## Contributing
+Have a fix or a feature to add? Feel free to submit a Pull Request. 
+For any large changes, please open an issue first to discuss.

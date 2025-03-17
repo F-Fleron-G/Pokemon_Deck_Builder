@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 from database import SessionLocal
 from models import Trainer, Energy
 from schemas import (
@@ -12,6 +13,7 @@ from utils import fetch_trainer_data, fetch_energy_data
 from utils import TCG_API_URL, TCG_API_HEADERS
 from typing import List
 import requests
+
 
 """
     This module provides endpoints to fetch Trainer and Energy card data directly 
@@ -57,7 +59,7 @@ def get_external_trainers(trainer_name: str = ""):
     """
 
     query = "supertype:Trainer"
-    url = f"{TCG_API_URL}?q={query}&pageSize=100"
+    url = f"{TCG_API_URL}?q={query}&pageSize=250"
     response = requests.get(url, headers=TCG_API_HEADERS)
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code,
@@ -103,7 +105,7 @@ def get_external_energy(energy_type: str = ""):
     """
 
     query = "supertype:Energy"
-    url = f"{TCG_API_URL}?q={query}&pageSize=100"
+    url = f"{TCG_API_URL}?q={query}&pageSize=250"
     response = requests.get(url, headers=TCG_API_HEADERS)
     if response.status_code != 200:
         raise HTTPException(status_code=response.status_code,
@@ -117,7 +119,7 @@ def get_external_energy(energy_type: str = ""):
         image_url = card.get("images", {}).get("large")
         if not image_url:
             continue
-        if energy_type and energy_type.lower() not in card.get("name", "").lower():
+        if energy_type and energy_type.lower() not in " ".join(card.get("subtypes", [])).lower():
             continue
         matches.append({
             "name": card.get("name"),
@@ -130,3 +132,111 @@ def get_external_energy(energy_type: str = ""):
     if not matches:
         raise HTTPException(status_code=404, detail="No matching energy cards found.")
     return matches
+
+
+@router.post("/external/cache")
+def cache_tcg_data(db: Session = Depends(get_db)):
+    """
+    Fetches Trainer and Energy data from the TCG API and upserts them into the database.
+    This endpoint can be called periodically to refresh your local cache.
+    """
+    # --- Cache Trainers ---
+    query = "supertype:Trainer"
+    url = f"{TCG_API_URL}?q={query}&pageSize=250"
+    trainer_response = requests.get(url, headers=TCG_API_HEADERS)
+    if trainer_response.status_code != 200:
+        raise HTTPException(status_code=trainer_response.status_code,
+                            detail="Error fetching trainer data.")
+    trainer_data = trainer_response.json()
+    trainers = []
+    if "data" in trainer_data:
+        for card in trainer_data["data"]:
+            image_url = card.get("images", {}).get("large")
+            if not image_url:
+                continue
+            trainers.append({
+                "name": card.get("name"),
+                "tcg_id": card.get("id"),
+                "tcg_image_url": image_url,
+                "tcg_set": card.get("set", {}).get("name"),
+                "tcg_rarity": card.get("rarity"),
+                "effect": card.get("text", None)
+            })
+
+    for trainer in trainers:
+        existing = db.query(Trainer).filter(and_(Trainer.tcg_id == trainer["tcg_id"])).first()
+        if existing:
+            existing.name = trainer["name"]
+            existing.tcg_image_url = trainer["tcg_image_url"]
+            existing.tcg_set = trainer["tcg_set"]
+            existing.tcg_rarity = trainer["tcg_rarity"]
+            existing.effect = trainer["effect"]
+        else:
+            new_trainer = Trainer(**trainer)
+            db.add(new_trainer)
+    db.commit()
+
+    # --- Cache Energy Cards ---
+    query = "supertype:Energy"
+    url = f"{TCG_API_URL}?q={query}&pageSize=250"
+    energy_response = requests.get(url, headers=TCG_API_HEADERS)
+    if energy_response.status_code != 200:
+        raise HTTPException(status_code=energy_response.status_code,
+                            detail="Error fetching energy data.")
+    energy_data = energy_response.json()
+    energies = []
+    if "data" in energy_data:
+        for card in energy_data["data"]:
+            image_url = card.get("images", {}).get("large")
+            if not image_url:
+                continue
+            energies.append({
+                "name": card.get("name"),
+                "tcg_id": card.get("id"),
+                "tcg_image_url": image_url,
+                "tcg_set": card.get("set", {}).get("name"),
+                "tcg_rarity": card.get("rarity"),
+                "energy_type": card.get("name", "").replace(" Energy", "").strip()
+            })
+
+    for energy in energies:
+        existing = db.query(Energy).filter(and_(Energy.tcg_id == energy["tcg_id"])).first()
+        if existing:
+            existing.name = energy["name"]
+            existing.tcg_image_url = energy["tcg_image_url"]
+            existing.tcg_set = energy["tcg_set"]
+            existing.tcg_rarity = energy["tcg_rarity"]
+            existing.energy_type = energy["energy_type"]
+        else:
+            new_energy = Energy(**energy)
+            db.add(new_energy)
+    db.commit()
+
+    return {
+        "message": "TCG data cached successfully",
+        "trainers_count": len(trainers),
+        "energies_count": len(energies)
+    }
+
+
+@router.get("/cached/energy", response_model=List[EnergyBase])
+def get_cached_energy(db: Session = Depends(get_db)):
+    """
+    Retrieves energy cards from the local database cache.
+    This endpoint returns the energy cards that have been previously cached
+    via the /tcg/external/cache endpoint.
+    """
+    energies = db.query(Energy).all()
+    if not energies:
+        raise HTTPException(status_code=404, detail="No energy cards found in cache.")
+    results = []
+    for energy in energies:
+        results.append({
+            "name": energy.name,
+            "tcg_id": energy.tcg_id,
+            "tcg_image_url": energy.tcg_image_url,
+            "tcg_set": energy.tcg_set,
+            "tcg_rarity": energy.tcg_rarity,
+            "energy_type": energy.energy_type,
+        })
+    return results

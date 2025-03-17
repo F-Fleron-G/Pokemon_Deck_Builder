@@ -7,6 +7,19 @@
 
 
 def calculate_deck_score(pokemon_list, trainer_list, energy_list):
+    """
+        Calculates the deck's synergy score based on the number of Pokémon,
+        Trainer, and Energy cards.
+
+        Args:
+            pokemon_list (list): List of Pokémon objects (or dicts) in the deck.
+            trainer_list (list): List of Trainer objects (or dicts) in the deck.
+            energy_list (list): List of Energy objects (or dicts) in the deck.
+
+        Returns:
+            int: The total deck score, computed as:
+                 (10 * number_of_pokemon) + (5 * number_of_trainers) + (3 * number_of_energy).
+    """
 
     pokemon_points = len(pokemon_list) * 10
     trainer_points = len(trainer_list) * 5

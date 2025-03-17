@@ -5,12 +5,164 @@
   position: relative;
 }
 
+.logo-container {
+ position: relative;
+  display: block;
+  margin: 0 auto;
+  width: 300px;
+  text-align: center;
+}
+
 .logo-img {
   width: 300px;
   height: auto;
   display: block;
-  margin: 0 auto;
   cursor: pointer;
+  position: relative;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus, button:focus {
+  outline: none;
+}
+
+.logo-overlay {
+  position: absolute;
+  top: 15%;
+  left: 53%;
+  height: 25%;
+  width: 40%;
+  background-color: #fff;
+  border: 3px solid #262626;
+  border-radius: 50%;
+  color: #262626;
+  font-family: 'Comic Sans MS', sans-serif;
+  font-size: 1.1rem;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 10;
+}
+
+.logo-overlay::before,
+.logo-overlay::after {
+  content: "";
+  position: absolute;
+  left: 80px;
+}
+
+.logo-overlay::before {
+  width: 40%;
+  height: 100%;
+  bottom: -51%;
+  border-radius: 50%;
+  left: 10%;
+  box-shadow: 0.5vmin 0, 2vmin -0.5vmin #ffd, 2vmin -0.5vmin 0 0.5vmin;
+  clip-path: polygon(0% 49%, 150% 48%, 150% 100%, 0% 100%);
+}
+
+.logo-container:hover .logo-overlay {
+  opacity: 1;
+}
+
+/* Instructions pop-up (modal) overlay */
+.instructions-content {
+  background: #fff;
+  padding: 20px;
+  border: 2px solid #262626;
+  border-radius: 8px;
+  max-width: 800px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Instructions text and image columns */
+.modal-body {
+  display: flex;
+  flex: 1;
+  height: 100%;
+}
+
+/* Left col text area */
+.modal-text {
+  flex: 2;
+  padding-right: 20px;
+  overflow-y: auto;
+}
+
+/* Right col image area */
+.modal-image {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.modal-image img {
+  height: 700px;
+  width: auto;
+  object-fit: cover;
+}
+
+/* Instructions */
+.instructions-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fde5d2;
+  border: 2px solid #262626;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.header-info-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #fde5d2;
+  border: 2px solid #262626;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  font-family: 'Comic Sans MS', sans-serif;
+  font-size: 1.2rem;
+  color: #262626;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.header-info-btn:hover {
+  background-color: #e7d1c0;
 }
 
 .header-nav {
@@ -21,6 +173,27 @@
   right: 20px;
 }
 
+.header-nav-logout-btn {
+  width: 70px;
+  height: 90px;
+  background-color: #e5e5e5;
+  color: #262626;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: 'Comic Sans MS', sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0;
+}
+.header-nav-logout-btn:hover {
+  background-color: #bebdbd;
+}
+
 .header-nav-login-btn,
 .header-nav-signup-btn,
 .header-nav-home-btn,
@@ -29,7 +202,7 @@
   height: 90px;
   background-color: #fde5d2;
   color: #262626;
-  border: 3px solid #262626;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.9rem;
@@ -70,10 +243,52 @@
   background-color: #6f9eb1;
 }
 
-@media (max-width: 600px) {
-  .logo-img {
-    width: 200px;
+@media (max-width: 768px) {
+  .modal-body {
+    flex-direction: column;
   }
+  .modal-text {
+    padding-right: 0;
+    padding-bottom: 20px;
+  }
+  .modal-image {
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-image img {
+    height: auto;
+    width: 100%;
+    object-fit: contain;
+  }
+  /* Overflows vertically */
+  .instructions-content {
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-container,
+  .logo-img,
+  .logo-overlay {
+    outline: none;
+  -webkit-tap-highlight-color: transparent;
+    max-width: 200px;
+  }
+
+   .logo-overlay {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 50%;
+  }
+
+  .logo-overlay::before {
+    border-width: 0.8rem 0.6rem 0 0.6rem;
+  }
+
+  .logo-overlay::after {
+    border-width: 0.6rem 0.5rem 0 0.5rem;
+  }
+
   .header-nav {
     position: static;
     margin-top: 10px;

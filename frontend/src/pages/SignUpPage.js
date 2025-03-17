@@ -4,6 +4,7 @@ import axios from "axios";
 import "./SignUpPage.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import signupFormImage from "../assets/signup_form_image.png";
 
 const API_URL = "http://localhost:8000";
 
@@ -30,8 +31,15 @@ function SignUpPage() {
       <Header />
       <div className="signup-page">
         <section className="signup-section">
-      <div className="signup-auth-container">
-        <h2>Sign Up</h2>
+          <div className="signup-auth-container">
+              <div className="signup-auth-header">
+              <img
+                src={signupFormImage}
+                alt="Pokemon Unown"
+                className="signup-form-image"
+              />
+              <h2>Sign Up</h2>
+          </div>
         {error && <p className="signup-error-text">{error}</p>}
         <form onSubmit={handleSignUp}>
           <div className="signup-auth-field">

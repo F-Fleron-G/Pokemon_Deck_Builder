@@ -10,6 +10,10 @@ print("Python version running FastAPI:", sys.executable)
 
 app = FastAPI()
 
+origins = [
+    "http://localhost:3000"
+]
+
 
 def custom_openapi():
     """
