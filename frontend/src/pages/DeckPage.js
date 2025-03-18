@@ -997,10 +997,6 @@ const handleDeleteEnergy = async (energyId) => {
       <div className="trainer-bottom-image">
         <img src={trainerImage} alt="Pokémon Trainer illustration" />
       </div>
-    <div className="trainer-comment-block">
-      <p>Trainers are super helpful! They give your Pokémon extra power, heal them,
-       and help you win battles faster!</p>
-    </div>
    </div>
   </div>
  </div>
@@ -1033,13 +1029,9 @@ const handleDeleteEnergy = async (energyId) => {
     </div>
     )}
   <div className="energy-bottom-container">
-    <div className="energy-comment-block">
-      <p>Pokémon need Energy to power up their awesome moves and be ready for battle!</p>
-    </div>
     <div className="energy-bottom-image">
-      <img src={energyImage} alt="Energy illustration" />
+      <img src={energyImage} alt="Pikachu Energy illustration" />
     </div>
-
   </div>
   </div>
  </div>

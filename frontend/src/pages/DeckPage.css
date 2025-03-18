@@ -341,11 +341,13 @@ h2.detail-name {
 .trainer-detail-container {
   background-color: #e2bf65;
   height: 720px;
+  position: relative;
 }
 
 .energy-detail-container {
   background-color: #c6b49c;
   height: 720px;
+  position: relative;
 }
 
 /* Trainer and Energy Card Containers */
@@ -415,7 +417,21 @@ h2.detail-name {
   visibility: hidden;
 }
 
-/* Trainer Bottom Container */
+.trainer-bottom-image,
+.energy-bottom-image {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.trainer-bottom-image img,
+.energy-bottom-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .trainer-bottom-container {
   display: flex;
   align-items: center;
@@ -425,109 +441,11 @@ h2.detail-name {
   padding: 10px;
 }
 
-/* Trainer Bottom Image */
-.trainer-bottom-image img {
-  max-width: 150px;
-  height: auto;
-}
-
-/* Trainer Comment Block */
-.trainer-comment-block {
-  max-width: 250px;
-  font-size: 12px;
-  color: #262626;
-  font-weight: bold;
-  background: #fff;
-  padding: 20px;
-  border: 2px solid #262626;
-  border-radius: 50%;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-.trainer-comment-block::before {
-  content: "";
-  position: absolute;
-  left: -38px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-right: 38px solid #262626;
-  border-top: 18px solid transparent;
-  border-bottom: 8px solid transparent;
-}
-
-/* Inner speech bubble spike */
-.trainer-comment-block::after {
-  content: "";
-  position: absolute;
-  left: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-right: 32px solid #fff;
-  border-top: 14px solid transparent;
-  border-bottom: 5px solid transparent;
-}
-
 .energy-bottom-container {
   display: flex;
-  align-items: center;
-  justify-content: right;
-  margin-top: 25px;
-  padding: 0;
-}
-
-.energy-comment-block {
-  max-width: 250px;
-  font-size: 12px;
-  color: #262626;
-  font-weight: bold;
-  background: #fff;
+  align-items: flex-end;
+  justify-content: center;
   padding: 20px;
-  border: 2px solid #262626;
-  border-radius: 50%;
-  text-align: center;
-  position: relative;
-  top: 30px;
-  right: -20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-.energy-comment-block::before {
-  content: "";
-  position: absolute;
-  right: -38px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-left: 38px solid #262626;
-  border-top: 18px solid transparent;
-  border-bottom: 8px solid transparent;
-}
-
-.energy-comment-block::after {
-  content: "";
-  position: absolute;
-  right: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0;
-  height: 0;
-  border-left: 32px solid #fff;
-  border-top: 14px solid transparent;
-  border-bottom: 5px solid transparent;
-}
-
-/* Energy Bottom Image */
-.energy-bottom-image img {
-  max-width: 252px;
-  margin-bottom: -7px;
-  height: auto;
 }
 
 .tcg-zoom {
