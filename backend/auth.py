@@ -1,10 +1,7 @@
 import bcrypt
+import jwt
+import os
 import types
-
-if not hasattr(bcrypt, "__about__"):
-    dummy = types.SimpleNamespace(__version__=getattr(bcrypt, "__version__", "3.2.0"))
-    bcrypt.__about__ = dummy
-
 from fastapi import APIRouter, Depends, HTTPException, Security
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
@@ -12,8 +9,6 @@ from database import SessionLocal, engine, Base
 from models import User
 from schemas import UserCreate, UserLogin
 from passlib.context import CryptContext
-import jwt
-import os
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer, APIKeyHeader
 
@@ -39,14 +34,18 @@ api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 def get_api_key(api_key: str = Security(api_key_header)):
     """
-        Validates the API key from the Authorization header.
+        Validates the Bearer token from the Authorization header.
+
         Args:
-            api_key (str): The API key string from the request header.
+            api_key (str): The "Authorization" header value from the request,
+                           expected to start with "Bearer ".
+
         Returns:
-            str: The API key if valid.
+            str: The raw token string (including the Bearer prefix).
+
         Raises:
-            HTTPException: If the API key is missing or does not start with 'Bearer '.
-        """
+            HTTPException: If the header is missing or does not start with 'Bearer '.
+    """
 
     if not api_key or not api_key.startswith("Bearer "):
         raise HTTPException(status_code=403, detail="Not authenticated")
@@ -59,9 +58,8 @@ router = APIRouter()
 def get_db():
     """
         Provides a database session for request handling.
-        Yields:
-            Session: A SQLAlchemy session.
-        """
+        Session: A SQLAlchemy session.
+    """
 
     db = SessionLocal()
     try:
@@ -77,7 +75,7 @@ def hash_password(password: str) -> str:
             password (str): The plain text password.
         Returns:
             str: The hashed password.
-        """
+    """
 
     return pwd_context.hash(password)
 
@@ -90,7 +88,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
             hashed_password (str): The hashed password.
         Returns:
             bool: True if the password matches, otherwise False.
-        """
+    """
 
     return pwd_context.verify(plain_password, hashed_password)
 
@@ -104,7 +102,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
             Defaults to ACCESS_TOKEN_EXPIRE_MINUTES.
         Returns:
             str: The encoded JWT access token.
-        """
+    """
 
     to_encode = data.copy()
     expire = (datetime.now(timezone.utc) +
@@ -125,7 +123,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
             dict: A success message upon registration.
         Raises:
             HTTPException: If the email already exists.
-        """
+    """
 
     db_user = db.query(User).filter(and_(User.email == user.email)).first()
     if db_user:
@@ -152,7 +150,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             dict: The access token and token type.
         Raises:
             HTTPException: If authentication fails.
-        """
+    """
 
     db_user = db.query(User).filter(and_(User.email == user.email)).first()
 
@@ -173,7 +171,7 @@ def decode_token(token: str):
             str: The user's email (subject) extracted from the token.
         Raises:
             HTTPException: If the token is expired or invalid.
-        """
+    """
 
     try:
         if token.startswith("Bearer "):

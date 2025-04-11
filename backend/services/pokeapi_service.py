@@ -9,7 +9,7 @@ def fetch_pokemon_data(pokemon_name: str):
     response = requests.get(url)
 
     if response.status_code != 200:
-        return None  # Pokémon not found
+        return None
 
     data = response.json()
 

@@ -104,7 +104,8 @@ def get_user_deck(user: User = Depends(get_current_user),
     return {
         "deck": {
             "pokemon": [
-                {"id": p.id, "name": p.name, "image_url": p.image_url}
+                {"id": p.id, "name": p.name, "image_url": p.image_url,
+                 "strengths": p.strengths, "weaknesses": p.weaknesses}
                 for p in pokemon_list
             ],
             "trainers": [

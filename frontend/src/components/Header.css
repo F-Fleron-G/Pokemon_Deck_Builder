@@ -72,6 +72,7 @@ a:focus, button:focus {
 /* Instructions pop-up (modal) overlay */
 .instructions-content {
   background: #fff;
+  font-size: 14px;
   padding: 20px;
   border: 2px solid #262626;
   border-radius: 8px;
@@ -93,7 +94,7 @@ a:focus, button:focus {
 /* Left col text area */
 .modal-text {
   flex: 2;
-  padding-right: 20px;
+  padding-right: 10px;
   overflow-y: auto;
 }
 
@@ -107,7 +108,7 @@ a:focus, button:focus {
 }
 
 .modal-image img {
-  height: 700px;
+  height: 660px;
   width: auto;
   object-fit: cover;
 }
@@ -133,12 +134,16 @@ a:focus, button:focus {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #fde5d2;
+  background-color: #e5e5e5;
   border: 2px solid #262626;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   font-weight: bold;
   cursor: pointer;
   z-index: 10;
+}
+
+.modal-close-btn:hover{
+  background-color: #bebdbd;
+  transform: scale(1.05);
 }
 
 .header-info-btn {
@@ -147,11 +152,11 @@ a:focus, button:focus {
   left: 20px;
   width: 60px;
   height: 60px;
-  background-color: #fde5d2;
+  background-color: #d0b3ff;
   border: 2px solid #262626;
   border-radius: 50%;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  font-family: 'Comic Sans MS', sans-serif;
+  font-family: 'Verdana', sans-serif;
   font-size: 1.2rem;
   color: #262626;
   cursor: pointer;
@@ -162,7 +167,7 @@ a:focus, button:focus {
 }
 
 .header-info-btn:hover {
-  background-color: #e7d1c0;
+  background-color: #bba0e7;
 }
 
 .header-nav {
@@ -293,5 +298,25 @@ a:focus, button:focus {
     position: static;
     margin-top: 10px;
     justify-content: center;
+  }
+  .modal-body {
+    flex-direction: column;
+  }
+  .modal-text {
+    padding-right: 0;
+    padding-bottom: 20px;
+  }
+  .modal-image {
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-image img {
+    height: auto;
+    width: 50%;
+    object-fit: contain;
+  }
+  /* Overflows vertically */
+  .instructions-content {
+    overflow-y: auto;
   }
 }

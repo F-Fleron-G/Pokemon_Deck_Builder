@@ -22,7 +22,7 @@ function Footer() {
       </div>
       <div className="credits">
         <p>
-          Data and images courtesy of Pokeapi, TCG Api, and Pokemondb.
+          Data and images courtesy of PokéAPI, Pokémon TCG API, and Pokémon Database
         </p>
       </div>
     </footer>

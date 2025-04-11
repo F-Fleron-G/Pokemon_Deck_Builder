@@ -2,7 +2,8 @@ from synergy import calculate_deck_score
 from utils import fetch_pokemon_data, fetch_trainer_data, fetch_energy_data
 from sqlalchemy.orm import Session
 from database import SessionLocal
-from models import DeckPokemon, DeckTrainer, DeckEnergy, Pokemon, Trainer, Energy
+from models import (DeckPokemon, DeckTrainer, DeckEnergy,
+                    Pokemon, Trainer, Energy)
 from type_matchups import type_chart, get_strengths_and_weaknesses
 from sqlalchemy import and_
 import random
@@ -31,9 +32,9 @@ import requests
 
 def generate_recommendations(user_deck, db: Session):
     """
-    Generates a list of recommendation objects to improve the deck, using:
-      - PokemonDB images for recommended Pokémon
-      - Basic logic for trainers, energy, synergy score
+        Generates a list of recommendation objects to improve the deck, using:
+          - PokemonDB images for recommended Pokémon
+          - Basic logic for trainers, energy, synergy score
     """
     if not user_deck:
         return [{
@@ -69,12 +70,25 @@ def generate_recommendations(user_deck, db: Session):
     for weak_type, count in weaknesses_count.items():
         strong_pokemon = fetch_pokemon_by_strength(weak_type)
         if strong_pokemon and strong_pokemon["name"] != "No strong Pokémon found":
+            weak_pokemon = next(
+                (p for p in pokemon_list if weak_type in
+                 fetch_pokemon_data(p.id).get("weaknesses", [])),
+                None
+            )
+            if weak_pokemon:
+                message = (f"You have {weak_pokemon.name.capitalize()} in your"
+                           f" deck who is weak to {weak_type}. Consider adding {strong_pokemon['name']}!")
+            else:
+                message = (f"Your deck has {count} Pokémon weak to {weak_type}."
+                           f" Consider adding {strong_pokemon['name']}!")
+
             rec_obj = {
                 "id": strong_pokemon["id"],
                 "type": "pokemon",
                 "name": strong_pokemon["name"],
-                "tcg_image_url": f"https://img.pokemondb.net/artwork/large/{strong_pokemon['name'].lower()}.jpg",
-                "message": f"Your deck has {count} Pokémon weak to {weak_type}. Consider adding {strong_pokemon['name']}!"
+                "tcg_image_url": f"https://img.pokemondb.net/artwork/large/"
+                                 f"{strong_pokemon['name'].lower()}.jpg",
+                "message": message
             }
             recommendations.append(rec_obj)
 
@@ -105,7 +119,8 @@ def generate_recommendations(user_deck, db: Session):
             "type": "info",
             "name": "Low Synergy",
             "tcg_image_url": "",
-            "message": f"Your deck score is {deck_score}. Try balancing your Pokémon, Trainers, and Energy."
+            "message": f"Your deck score is {deck_score}."
+                       f" Try balancing your Pokémon, Trainers, and Energy."
         })
     else:
         recommendations.append({
@@ -135,7 +150,8 @@ def has_valid_image(pokemon_name):
         Uses caching to prevent repeated slow requests.
     """
 
-    image_url = f"https://img.pokemondb.net/artwork/large/{pokemon_name.lower()}.jpg"
+    image_url = (f"https://img.pokemondb.net/artwork/large/"
+                 f"{pokemon_name.lower()}.jpg")
 
     if pokemon_name in pokemon_with_images_cache:
         return True
@@ -153,7 +169,8 @@ def fetch_pokemon_by_strength(weak_type: str):
         Ensures that only Pokémon with a valid image in PokémonDB are selected.
     """
     strong_types = [
-        p_type for p_type, matchups in type_chart.items() if weak_type in matchups["weak_to"]
+        p_type for p_type, matchups in type_chart.items()
+        if weak_type in matchups["weak_to"]
     ]
 
     if not strong_types:

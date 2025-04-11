@@ -21,8 +21,6 @@ function LoginPage() {
       const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       localStorage.setItem("token", response.data.access_token);
       axios.post(`${API_URL}/tcg/external/cache`)
-      .then(() => console.log("TCG data cached successfully."))
-      .catch((err) => console.error("Error caching TCG data:", err));
       alert("Login successful!");
       navigate("/deck");
     } catch (err) {

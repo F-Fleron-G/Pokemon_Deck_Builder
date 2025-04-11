@@ -214,15 +214,16 @@ Deck Management (Requires JWT):
 
 ---
 
-## Future Enhancements
-- Deck Synergy & Scoring: 
-  - Continue refining synergy algorithms for deeper strategy insights.
-- Advanced TCG Data:
-  - More detailed local caching, advanced search/filter, and a bigger card library.
-- Deployment:
-  - Plans to include frontend hosted on Render once the complete production config is finalised.
-- UI/UX Improvements:
-  - Additional visuals, drag-and-drop deck editing, etc.
+## Latest Updates
+
+- **Deck Synergy & Scoring**: Refined algorithm to better reflect strategic strengths.
+- **TCG Data Integration**: Improved local caching of Trainer/Energy cards.
+- **Mobile Responsiveness**: Full layout adjustment for small screens.
+- **UI/UX Enhancements**: 
+  - Updated spacing, hover effects, typography
+  - Improved layout across React pages
+- **Bug Fixes**: Endpoints now fully stable and cleanly documented.
+
 ---
 
 ## Credits
@@ -234,9 +235,9 @@ Deck Management (Requires JWT):
 
 ---
 
-## Licence
-This project is licensed under the MIT Licence. 
-See [LICENCE](LICENCE) for details.
+## License
+This project is licensed under the MIT License. 
+See [LICENSE](LICENSE) for details.
 
 ---
 

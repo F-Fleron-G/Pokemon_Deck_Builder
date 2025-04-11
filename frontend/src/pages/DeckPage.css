@@ -1,4 +1,3 @@
-/* Base and container styles */
 * {
   box-sizing: border-box;
 }
@@ -7,6 +6,28 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Comic Sans MS', sans-serif;
+}
+
+.loading-container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+}
+
+.spinner-img {
+  width: 200px;
+  height: 200px;
+}
+
+
+h1,
+h2,
+h3,
+h4 {
+ font-family: Verdana, sans-serif;
 }
 
 .app-container {
@@ -21,6 +42,12 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+}
+
+.left-col-body,
+.middle-col-body,
+.right-col-body {
+ min-height: 750px;
 }
 
 .search-filter-top {
@@ -102,15 +129,12 @@ button.active-tab:hover {
   margin-left: 0;
   margin-bottom: 20px;
   padding: 13px;
-  border: 2px solid #262626;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  background: #fff;
-  border-radius: 8px;
+  border: 2px solid #e5e5e5;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #262626;
-  font-size: 1.20em;
+  font-size: 1.4em;
 }
 
 /* Three-column layout */
@@ -143,7 +167,7 @@ button.active-tab:hover {
   position: relative;
 }
 
-/* Middle column  */
+/* Middle column */
 .card-detail-col {
   flex: 1;
   min-width: 280px;
@@ -156,7 +180,7 @@ button.active-tab:hover {
   position: relative;
 }
 
-/* Right column  */
+/* Right column */
 .right-slider-col {
   flex: 1;
   min-width: 280px;
@@ -172,7 +196,7 @@ button.active-tab:hover {
 .detail-card {
   width: 100%;
   max-width: 100%;
-  min-height: 550px;
+  min-height: 737px;
   height: auto;
   border-radius: 8px;
   text-align: center;
@@ -196,10 +220,11 @@ button.active-tab:hover {
 
 h2.detail-name {
   font-size: 1.2em;
-  margin-top: 5px;
+  margin-top: 20px;
+  text-transform: capitalize;
 }
 
-/* HP Section */
+/* HP section */
 .hp-container {
   display: flex;
   align-items: center;
@@ -208,7 +233,7 @@ h2.detail-name {
   font-size: 16px;
 }
 
-/* Type Symbol */
+/* Type symbol */
 .type-symbol {
   width: 35px;
   height: 35px;
@@ -216,7 +241,7 @@ h2.detail-name {
   margin-left: 10px;
 }
 
-/* Pokémon Image */
+/* Pokémon image */
 .detail-image-container {
   padding: 5px;
   display: flex;
@@ -274,7 +299,7 @@ h2.detail-name {
   margin-bottom: 5px;
 }
 
-/* Type Badges */
+/* Type badges */
 .type-badges {
   display: flex;
   justify-content: center;
@@ -291,7 +316,7 @@ h2.detail-name {
   background-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Stats Grid */
+/* Stats grid */
 .stats-grid {
   display: flex;
   flex-wrap: wrap;
@@ -307,7 +332,7 @@ h2.detail-name {
   border-radius: 8px;
 }
 
-/* Pokémon Description Styling */
+/* Pokémon description styling */
 .pokemon-description-container {
   font-size: 12px;
   background: rgba(255, 255, 255, 0.2);
@@ -323,10 +348,10 @@ h2.detail-name {
   font-weight: bold;
   font-style: italic;
   color: #262626;
-  line-height: 1.5;
+  line-height: 1.50;
 }
 
-/* Moves Section */
+/* Moves section */
 .moves-text {
   font-size: 12px;
   font-weight: bold;
@@ -340,17 +365,17 @@ h2.detail-name {
 
 .trainer-detail-container {
   background-color: #e2bf65;
-  height: 720px;
+  height: 737px;
   position: relative;
 }
 
 .energy-detail-container {
   background-color: #c6b49c;
-  height: 720px;
+  height: 737px;
   position: relative;
 }
 
-/* Trainer and Energy Card Containers */
+/* Trainer & Energy Card Containers */
 .trainer-detail-image-container,
 .energy-detail-image-container {
   display: flex;
@@ -373,10 +398,10 @@ h2.detail-name {
   transition: transform 0.3s ease;
 }
 
-/* Zoom effect Trainer and Energy cards */
+/* Zoom effect Trainer & Energy cards */
 .trainer-detail-image-container img:hover,
 .energy-detail-image-container img:hover {
-  transform: scale(1.1);
+  transform: scale(1.2);
 }
 
 .trainer-set,
@@ -453,7 +478,8 @@ h2.detail-name {
 }
 
 .tcg-zoom:hover {
-  transform: scale(1.1);
+  transform: scale(1.5);
+  cursor: pointer;
 }
 
 .catch-btn {
@@ -470,6 +496,7 @@ h2.detail-name {
 .catch-btn.catching {
   transform: scale(1.1);
 }
+
 .catch-btn:hover {
   transform: scale(1.15);
 }
@@ -504,7 +531,7 @@ h2.detail-name {
 /* Slider containers */
 .slider-container {
   position: relative;
-  height: 720px;
+  height: 737px;
   width: 100%;
   overflow: hidden;
   border: 2px solid #262626;
@@ -526,13 +553,14 @@ h2.detail-name {
 .card-item {
   width: 200px;
   height: 240px;
-  padding: 10px;
-  font-size: 10px;
+  padding: 25px;
+  font-size: 11px;
   text-align: center;
   background: #fff;
   border-radius: 8px;
   margin: 15px 0;
   opacity: 0.4;
+  text-transform: capitalize;
   transition: transform 0.3s, opacity 0.3s;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
@@ -568,7 +596,7 @@ h2.detail-name {
   padding: 8px 12px;
   font-size: 12px;
   font-family: 'Comic Sans MS', sans-serif;
-  background-color: #fde5d2;
+  background-color: #e5e5e5;
   border: 2px solid #262626;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -586,7 +614,8 @@ h2.detail-name {
 .arrow-btn-vertical:hover,
 .start-btn:hover,
 .go-end-btn:hover {
-  background-color: #5c5856;
+  background-color: #bebdbd;
+  color: #262626;
 }
 
 .arrow-btn-vertical:disabled,
@@ -600,7 +629,7 @@ h2.detail-name {
 .recommendations-slider-container {
   position: relative;
   width: 100%;
-  height: 720px;
+  height: 736px;
   overflow: hidden;
   border: 2px solid #262626;
   border-radius: 8px;
@@ -653,7 +682,7 @@ h2.detail-name {
 }
 
 .vertical-slider-controls button {
-  background-color: #fde5d2;
+  background-color: #e5e5e5;
   border: 2px solid #262626;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -664,7 +693,7 @@ h2.detail-name {
 }
 
 .vertical-slider-controls button:hover {
-  background-color: #e7d1c0;
+  background-color: #bebdbd;
 }
 
 /* 3 columns row */
@@ -699,7 +728,7 @@ h2.detail-name {
 .deck-extra-col-l h3,
 .deck-extra-col-m h3,
 .deck-extra-col-r h3 {
-  font-size: 1.20em;
+  font-size: 1.3em;
 }
 
 .deck-extra-col-l .deck-update-image img {
@@ -731,27 +760,86 @@ h2.detail-name {
 
 /* Clock pointer container */
 .deck-score-clock {
-  position: relative;
-  width: 160px;
-  height: 160px;
-  margin: 0 auto;
   border-radius: 50%;
   border: 2px solid #262626;
   background: #fff;
 }
-.clock-pointer {
-  width: 2px;
-  height: 50%;
-  background: #262626;
+
+.deck-strength-container {
+  position: relative;
+}
+
+.deck-info-btn {
   position: absolute;
-  top: 5px;
-  left: 50%;
-  transform-origin: bottom center;
-  transition: transform 0.3s ease;
+  bottom: 10px;
+  right: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid #262626;
+  background-color: #d0b3ff;
+  color: #262626;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+  z-index: 5;
+}
+
+.deck-info-btn:hover {
+  background-color: #bba0e7;
+  transform: scale(1.05);
+}
+
+.deck-info-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.deck-info-content {
+  background-image: url('../assets/deck_meter_info_bg.png');
+  background-size: cover;
+  background-position: center;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  width: 90%;
+  max-width: 600px;
+  padding: 30px;
+  border-radius: 12px;
+  position: relative;
+  border: 2px solid #262626;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+  font-family: 'Comic Sans MS', sans-serif;
+  color: #262626;
+}
+
+.deck-info-text {
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.deck-info-content h3 {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+
+.deck-info-content p {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 18px;
 }
 
 /* Instructions pop-up overlay */
-.instructions-modal {
+.update-instructions-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -764,7 +852,7 @@ h2.detail-name {
   z-index: 9999;
 }
 
-.instructions-content {
+.update-instructions-content {
   position: relative;
   background: #fff;
   padding: 20px;
@@ -788,16 +876,15 @@ h2.detail-name {
   object-fit: contain;
 }
 
-
-.instructions-content h3{
+.update-instructions-content h3{
   font-size: 16px;
 }
 
-.instructions-content p, li{
+.update-instructions-content p, li{
   font-size: 14px;
 }
 
-.modal-close-btn {
+.update-modal-close-btn {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -806,12 +893,16 @@ h2.detail-name {
   border-radius: 50%;
   background-color: #e5e5e5;
   border: 2px solid #262626;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   font-weight: bold;
   cursor: pointer;
 }
 
-/* Instructions-trigger*/
+.update-modal-close-btn:hover{
+  background-color: #bebdbd;
+  transform: scale(1.05);
+}
+
+/* Instructions-trigger */
 .instructions-trigger {
   color: #262626;
   text-transform: uppercase;
@@ -822,7 +913,7 @@ h2.detail-name {
   font-size: 0.9rem;
 }
 
-/* Update Deck Container */
+/* Update deck container */
 .update-deck-container {
   display: flex;
   justify-content: center;
@@ -835,7 +926,7 @@ h2.detail-name {
   height: 50%;
 }
 
-/* Update Now Button */
+/* Update Now button */
 .deck-update-button {
   position: relative;
   background: radial-gradient(circle at 50%, #ef0304 60%, #d1071d 10%);
@@ -866,6 +957,7 @@ h2.detail-name {
   height: auto;
 }
 
+/* Clock-like meter */
 .deck-strength-meter {
   width: 70%;
   height: 30px;
@@ -897,7 +989,7 @@ h2.detail-name {
   white-space: nowrap;
 }
 
-/* Total Cards Found */
+/* Total cards found */
 .total-cards {
   position: absolute;
   bottom: 10px;
@@ -910,7 +1002,41 @@ h2.detail-name {
   font-size: 14px;
 }
 
-/* Deck Cards Section */
+/* Deck cards section */
+.deck-header-with-button {
+  position: relative;
+  text-align: center;
+  margin: 20px 0 25px 0;
+}
+
+.deck-header-with-button h4 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+/* Tips button decks */
+.deck-tips-btn {
+  position: absolute;
+  top: 0;
+  right: 5px;
+  font-family: 'Comic Sans MS', sans-serif;
+  background-color: #d0b3ff;
+  border: 2px solid #262626;
+  color: #262626;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.deck-tips-btn:hover {
+  background-color: #bba0e7;
+  transform: scale(1.05);
+}
+
 .deck-cards-section {
   margin-top: 20px;
   display: flex;
@@ -920,35 +1046,130 @@ h2.detail-name {
 
 .deck-cards-group {
   background-color: #e5e5e5;
-  padding: 15px;
-  border-radius: 8px;
-  border: 2px solid #262626;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-.deck-cards-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.deck-card {
-  text-align: center;
   padding: 10px;
-  border: 2px solid #262626;
   border-radius: 8px;
-  background-color: #fff;
+  border: 2px solid #262626;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-.deck-card img {
-  max-width: 150px;
+/* Tips pop-up */
+.deck-tip-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.deck-tip-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #262626;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+  font-family: 'Comic Sans MS', sans-serif;
+}
+
+.deck-tip-content h3 {
+  margin-top: 0;
+  font-size: 1.3em;
+  color: #262626;
+  text-align: center;
+}
+
+.tip-points {
+  padding-left: 18px;
+  margin: 15px 0;
+}
+
+.tip-points li {
+  font-size: 16px;
+  margin-bottom: 8px;
+  color: #262626;
+}
+
+.garbodor-tip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.garbodor-tip-text {
+  flex: 1;
+  font-size: 16px;
+  color: #262626;
+}
+
+.garbodor-tip-img {
+  width: 300px;
   height: auto;
 }
 
-.deck-card button {
+/* Deck cards section only Pokémon */
+.deck-pokemon-card {
+  width: 200px;
+  height: 300px;
+  margin: 0;
+  padding: 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  border: 2px solid #262626;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.deck-card-wrapper {
+  width: 200px;
+  height: 250px;
+  margin: 0;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.deck-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.deck-card-wrapper,
+.deck-pokemon-card {
+  width: 100%;
+  max-width: 200px;
+  margin: 0 auto;
+}
+
+.deck-pokemon-card h3{
+  text-transform: capitalize;
+  font-size: 15px;
+}
+
+/* Responsive container */
+.deck-pokemon-cards-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.deck-pokemon-card button {
   background-color: #fff;
   color: #cf3f3e;
   padding: 5px 10px;
@@ -962,10 +1183,144 @@ h2.detail-name {
   text-align: center;
 }
 
-.deck-card button:hover {
+.deck-pokemon-card button:hover {
   background-color: #cf3f3e;
   color: #fff;
   transform: scale(1.05);
+}
+
+img.delete-icon{
+    max-width:100%;
+}
+
+.delete-pokemon-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+  background-color: #fff;
+  border: 2px solid #cf3f3e;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-pokemon-btn:hover {
+  background-color: #bebdbd;
+  transform: scale(1.05);
+}
+
+.deck-pokemon-img {
+  margin-top: 5px;
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+}
+
+/* Overlay only on Pokémon cards */
+.labels-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.label-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 13px;
+}
+
+.eye-strength-btn,
+.eye-weakness-btn {
+  background: none;
+  border: 2px solid #262626!important;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.eye-strength-btn:hover {
+  background-color: #c84b41!important;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.eye-weakness-btn:hover {
+  background-color: #f0d07d!important;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+
+.eye-icon {
+  width: 18px;
+  height: 25px;
+  display: block;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+}
+
+.overlay-content {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.overlay-content button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    margin: 0 auto;
+    border: 2px solid #262626!important;
+    border-radius: 8px!important;
+    color: #fff;
+    background-color: #262626;
+}
+
+.overlay-content button:hover {
+   border: 2px solid #262626;
+   background-color: #e5e5e5;
+   color: #262626;
+   font-family: 'Comic Sans MS', sans-serif;
+   border-radius: 8px;
+   cursor: pointer;
+   transition: background-color 0.3s;
+}
+
+.overlay-text {
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  margin: 10px 0;
+  word-wrap: break-word;
+  padding: 0 10px;
 }
 
 .see-more-btn {
@@ -988,7 +1343,7 @@ h2.detail-name {
 }
 
 /* Responsiveness */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
   .deck-extra-col-m {
     background-image: src="assets/deck_summary_img.png";
     background-size: cover;
@@ -1002,16 +1357,17 @@ h2.detail-name {
     background-position: center;
     background-repeat: no-repeat;
   }
-}
 
-/* Meter bar positioning */
-.deck-extra-col-r .deck-strength-meter {
-  margin-top: 30px;
-  margin-bottom: 30px;
+  /* Meter bar positioning */
+  .deck-extra-col-r .deck-strength-meter {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
 }
 
 @media (max-width: 768px) {
-  .deck-extra-col-r .deck-strength-meter {
+  .deck-extra-col-r,
+  .deck-strength-meter {
     margin-top: 10px;
   }
 
@@ -1048,18 +1404,39 @@ h2.detail-name {
    transition: transform 0.3s ease;
  }
 
-  .modal-close-btn {
+  .update-modal-close-btn {
     top: 5px;
     right: 5px;
+  }
+  .deck-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .deck-header-with-button {
+    text-align: center;
+    padding-right: 90px;
+  }
+
+  .deck-tips-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    white-space: nowrap;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
 /* Small devices */
-@media (max-width: 500px) {
-  .deck-extra-col-r .deck-strength-meter {
-    margin-top: 5px;
+@media (max-width: 480px) {
+  .deck-extra-col-m,
+  .deck-extra-col-r,
+  .deck-strength-meter {
+    margin: 5px;
   }
-  .instructions-bottom-image {
+  .update-instructions-bottom-image {
     max-width: 80px;
   }
 
@@ -1090,24 +1467,32 @@ h2.detail-name {
     font-size: 12px;
   }
 
-  .instructions-content {
+  .update-instructions-content {
     max-width: 90%;
     padding: 15px;
   }
 
-  .instructions-content h3 {
+  .update-instructions-content h3 {
     font-size: 14px;
   }
 
-  .instructions-content p,
-  .instructions-content li {
+  .update-instructions-content p,
+  .update-instructions-content li {
     font-size: 12px;
   }
 
-  .modal-close-btn {
+  .update-modal-close-btn {
     width: 28px;
     height: 28px;
     top: 5px;
     right: 5px;
+  }
+  .deck-cards-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .deck-tips-btn {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    max-width: 70px;
   }
 }

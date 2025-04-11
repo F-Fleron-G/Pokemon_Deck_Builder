@@ -119,7 +119,8 @@ def get_external_energy(energy_type: str = ""):
         image_url = card.get("images", {}).get("large")
         if not image_url:
             continue
-        if energy_type and energy_type.lower() not in " ".join(card.get("subtypes", [])).lower():
+        if (energy_type and energy_type.lower()
+                not in " ".join(card.get("subtypes", [])).lower()):
             continue
         matches.append({
             "name": card.get("name"),
@@ -137,7 +138,8 @@ def get_external_energy(energy_type: str = ""):
 @router.post("/external/cache")
 def cache_tcg_data(db: Session = Depends(get_db)):
     """
-    Fetches Trainer and Energy data from the TCG API and upserts them into the database.
+    Fetches Trainer and Energy data from the TCG API and upserts them into
+     the database.
     This endpoint can be called periodically to refresh your local cache.
     """
     # --- Cache Trainers ---
@@ -200,7 +202,8 @@ def cache_tcg_data(db: Session = Depends(get_db)):
             })
 
     for energy in energies:
-        existing = db.query(Energy).filter(and_(Energy.tcg_id == energy["tcg_id"])).first()
+        existing = (db.query(Energy).filter(and_(Energy.tcg_id == energy["tcg_id"]))
+                    .first())
         if existing:
             existing.name = energy["name"]
             existing.tcg_image_url = energy["tcg_image_url"]

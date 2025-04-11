@@ -30,7 +30,6 @@ function Header() {
         <div className="logo-overlay">Lets go home!</div>
       </div>
 
-      {/* Info button */}
       <div
         className="header-info-btn"
         onClick={() => setShowInstructions(true)}
@@ -38,7 +37,6 @@ function Header() {
         <span style={{ fontSize: "40px", fontWeight: "bold" }}>?</span>
       </div>
 
-      {/* Pop-up / Modal for instructions */}
       {showInstructions && (
         <div className="instructions-modal">
           <div className="instructions-content">
@@ -64,14 +62,9 @@ function Header() {
             <p>First, make sure you sign-up if it is your first time here.</p>
             <p>If you already have an account, simply log in and wait for your saved deck to load.</p>
             <h3>Important Tip!</h3>
-            <p>Each time you add or remove cards, do not forget to click the "Update Now!" button. This makes sure your deck is saved correctly and helps the program suggest even better recommendations for your next moves!</p>
-            <h3>What’s the Deck Strength Meter?</h3>
-            <p>The Deck Strength Meter shows how powerful your deck is. A higher meter means your Pokémon team is ready for battle!</p>
-            <h3>What’s the Deck Score?</h3>
-            <p>The Deck Score helps you understand how balanced and strong your deck is overall. Aim for the highest score possible!</p>
-            <h3>Please Note:</h3>
-            <p>Updating your deck might take a few moments because the program is thinking hard about the best recommendations to help you become a Pokémon Master!</p>
-            <p>Thanks for your patience!</p>
+            <p>Each time you add or remove cards, do not forget to click the <b> 'Update Now!'</b> button.
+            This makes sure your deck is saved correctly and helps the program suggest even better recommendations
+             for your next moves!</p>
             </div>
             <div className="modal-image">
               <img
@@ -85,7 +78,8 @@ function Header() {
       )}
 
       <nav className="header-nav">
-        <button className="header-nav-home-btn" onClick={() => navigate("/deck")}>
+        <button className="header-nav-home-btn" onClick={() => navigate("/deck")}
+        >
           Build it
         </button>
 

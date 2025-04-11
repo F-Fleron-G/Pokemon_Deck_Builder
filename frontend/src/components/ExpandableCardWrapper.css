@@ -1,0 +1,119 @@
+.deck-card-wrapper {
+  position: relative;
+  width: 200px;
+  height: 250px;
+  transition: all 0.3s ease;
+  transform-origin: center center;
+  z-index: 1;
+}
+
+.deck-card-wrapper img {
+  width: 300px;
+  height: auto;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+.deck-card-wrapper.expanded {
+  transform: scale(1.8);
+  z-index: 10;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 8px;
+  transition: transform 0.3s ease;
+}
+
+.deck-card-wrapper:not(.expanded) {
+  opacity: 0.6;
+}
+
+.card-hover-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.card-dim {
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.card-clear {
+  opacity: 1;
+  transform: scale(1.03);
+}
+
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+  background-color: #fff;
+  border: 2px solid #cf3f3e;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-btn:hover {
+  background-color: #bebdbd;
+  transform: scale(1.05);
+}
+
+.collapse-btn {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background-color: #e5e5e5;
+  border: 2px solid #262626;
+  font-weight: bold;
+  color: #262626;
+  font-size: 14px;
+  padding: 2px 6px;
+  cursor: pointer;
+  z-index: 11;
+  transition: transform 0.3s ease;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.collapse-btn:hover {
+  background-color: #bebdbd;
+  transform: scale(1.05);
+}
+
+.fade-in {
+  opacity: 1;
+}
+
+.fade-out {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .deck-card-wrapper.expanded {
+    transform: scale(1.2);
+  }
+}
+
+@media (max-width: 480px) {
+  .deck-card-wrapper.expanded {
+    transform: scale(1.3);
+  }
+}

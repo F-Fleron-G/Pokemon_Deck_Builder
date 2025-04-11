@@ -28,7 +28,7 @@ def create_tables():
     """
         Imports all models and creates the database tables if they do not exist.
         This function is used for initial table creation and debugging.
-        """
+    """
 
     from models import Base
     print("Creating tables in the database...")
