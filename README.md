@@ -1,3 +1,7 @@
+⚠️ This project has been archived and may contain outdated dependencies. 
+It is no longer maintained, but is preserved here to demonstrate work completed during my Masterschool program.
+
+
 ![Pikachu](https://github.com/F-Fleron-G/Pokemon_Deck_Builder/blob/main/images/pokemon-battle-image.jpg?raw=true)
 
 # Pokémon Deck Builder
