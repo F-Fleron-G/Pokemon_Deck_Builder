@@ -63,7 +63,7 @@ The front end (built with React) gives users an interactive experience to create
 - **Authentication**: JSON Web Tokens (JWT)
 - **Front End**: React (Axios, React Router, etc.)
 - **Test Framework**: Pytest
-- **Deployment**: Backend is live on Render | Frontend is planned upon completion.
+- **Deployment**: Backend was deployed on Render during the program; the React frontend was completed as an MVP and runs locally (see Setup Instructions).
 
 Refer to `requirements.txt` for all Python dependencies.
 
